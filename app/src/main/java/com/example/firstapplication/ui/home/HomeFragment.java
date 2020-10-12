@@ -54,16 +54,15 @@ public class HomeFragment extends Fragment {
         //AssetManager assetManager = getContext().getAssets();
         InputStream is = null;
         try {
-            is = requireActivity().getAssets().open("excelReadTest.xls");
+            is = requireActivity().getAssets().open("final.xls");
         } catch (IOException e) {
             e.printStackTrace();
         }
         int i = 0;
         Chart chart = new Chart(is);
-        //storage/emulated/0/Android/data/cn.wps.moffice_eng/.Cloud/cn/294959843/f/" +"048b2115-6680-4743-b1ae-0413ada47a9d/
         chart.GetPointFromSheet();
         try {
-            chart.DrawExcelData(lineChart);
+            chart.DrawExcelData(lineChart, "负荷需求");
         } catch (BiffException e) {
             e.printStackTrace();
         } catch (IOException e) {
