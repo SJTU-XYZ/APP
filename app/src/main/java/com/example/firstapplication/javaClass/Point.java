@@ -1,7 +1,5 @@
 package com.example.firstapplication.javaClass;
 
-import java.util.Iterator;
-
 public class Point {
     private float x;
     private float y;
@@ -16,6 +14,14 @@ public class Point {
     public void Set(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+
+    public float X() {
+        return x;
+    }
+
+    public float Y() {
+        return y;
     }
 }
 

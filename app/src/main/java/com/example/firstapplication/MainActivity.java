@@ -25,12 +25,16 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
+import jxl.read.biff.BiffException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,7 +66,20 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        /*
+        AssetManager assetManager = getAssets();
+        try {
+            InputStream is = assetManager.open("excelReadTest.xls");
+            //InputStream is = new FileInputStream("D:\\SJTU\\EngInnovation\\APP\\app\\src\\main\\assets\\excelReadTest.xlsx");
+            Workbook workbook2 = Workbook.getWorkbook(is);
+            int i = 0;
+            //Workbook workbook3 = Workbook.getWorkbook(is);
 
+        } catch (IOException | BiffException e) {
+            e.printStackTrace();
+        }
+
+         */
     }
 
     @Override
@@ -78,45 +95,4 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
-    public List<Point> GetPointFromSheet() {
-        AssetManager assetManager = getAssets();
-        List<Point> points = new ArrayList<>();
-
-        int i;
-        Workbook book;
-        Sheet sheet;
-        Cell x, y;
-
-        try {
-            //hello.xls为要读取的excel文件名
-            book = Workbook.getWorkbook(assetManager.open("excelReadTest.xls"));
-
-            //获得第一个工作表对象(ecxel中sheet的编号从0开始,0,1,2,3,....)
-            sheet = book.getSheet(0);
-            //获取左上角的单元格
-            //U_ID = sheet.getCell(0, 0);
-
-            i = 1;
-            while (i < 3) {//你的表格行数
-
-                //获取每一行的单元格
-                x = sheet.getCell(0, i);//（列，行）
-                y = sheet.getCell(1, i);
-
-                Point user = new Point();
-                //读取到的参数
-                user.Set(Float.parseFloat(x.getContents()), Float.parseFloat(y.getContents()));
-
-                points.add(user);
-                i++;
-            }
-            book.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return points;
-    }
-
 }

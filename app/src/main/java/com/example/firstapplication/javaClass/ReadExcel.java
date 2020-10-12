@@ -12,12 +12,16 @@ import jxl.read.biff.BiffException;
 
 public class ReadExcel {
 
-    private String filePath;
+    protected String filePath;
     protected List list = new ArrayList();
+    InputStream is;
 
     public ReadExcel(String filePath) {
         this.filePath = filePath;
+    }
 
+    public ReadExcel(InputStream _is) {
+        this.is = _is;
     }
 
     public void readExcel() throws IOException, BiffException {
