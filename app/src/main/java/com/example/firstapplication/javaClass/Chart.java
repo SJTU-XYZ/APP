@@ -23,7 +23,8 @@ import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
 public class Chart extends ReadExcel {
-    List<Point> points = new ArrayList<>();
+    private List<Point> points = new ArrayList<>();
+
     public Chart(String filePath) {
         super(filePath);
     }
@@ -57,61 +58,59 @@ public class Chart extends ReadExcel {
 
     }
 
-    public void Draw(LineChart chart, List _list, String text) {
+    public void DrawExcelData(LineChart lineChart, int day, String text) {
         List<Entry> entries = new ArrayList<>();
         // 循环你的数据，向图表中添加点
-        for (int i = 0; i < _list.size(); i++) {
+        for (int i = day * 24; i < (day + 1) * 24; i++) {
             // turn your data into Entry objects
-            entries.add(new Entry( ((Point)_list.get(i)).X(), ((Point)_list.get(i)).Y() ));
+            entries.add(new Entry( ((Point)points.get(i)).X(), ((Point)points.get(i)).Y() ));
         }
 
-        XAxis xAxis = chart.getXAxis();
+        XAxis xAxis = lineChart.getXAxis();
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        YAxis yAxis = chart.getAxisLeft();
-        yAxis.setDrawGridLines(false);
-        chart.getAxisRight().setEnabled(false);
+        xAxis.setAxisLineColor(Color.WHITE);
+        xAxis.setTextColor(Color.WHITE);
+        xAxis.setGranularity(1f);
 
-        LineDataSet dataSet = new LineDataSet(entries, "Label"); // 图表绑定数据，设置图表折现备注
+        YAxis yAxis = lineChart.getAxisLeft();
+        yAxis.setDrawGridLines(false);
+        yAxis.setAxisLineColor(Color.WHITE);
+        lineChart.getAxisRight().setEnabled(false);
+        yAxis.setTextColor(Color.WHITE);
+
+        LineDataSet dataSet = new LineDataSet(entries, " "); // 图表绑定数据，设置图表折现备注
 
         dataSet.setColor(Color.RED); // 设置折线图颜色
-        //dataSet.setValueTextColor(Color.BLUE); // 设置数据值的颜色
+        dataSet.setValueTextColor(Color.GRAY); // 设置数据值的颜色
         dataSet.setDrawCircles(false);
 
-        Description description = chart.getDescription();
+        Description description = lineChart.getDescription();
         description.setText(text); // 设置右下角备注
+        description.setTextColor(Color.WHITE);
 
         LineData lineData = new LineData(dataSet);
 
-        chart.setData(lineData); // 图表绑定数据值
-        chart.invalidate(); // 刷新图表
+        lineChart.setData(lineData); // 图表绑定数据值
+        lineChart.invalidate(); // 刷新图表
     }
 
-    public void DrawExcelData(LineChart lineChart, String text) throws BiffException, IOException {
-        //readExcel();
-        Draw(lineChart, points, text);
-    }
-
-    public void GetPointFromSheet() {
+    public void GetPointFromSheet(int sheetNum, int col) {
         int i;
         Workbook book;
         Sheet sheet;
         Cell x, y;
         try {
             book = Workbook.getWorkbook(is);
-            //获得第一个工作表对象(ecxel中sheet的编号从0开始,0,1,2,3,....)
-            sheet = book.getSheet(0);
-            //获取左上角的单元格
-            //U_ID = sheet.getCell(0, 0);
-
+            sheet = book.getSheet(sheetNum);
             i = 1;
             while (i < 290) {//你的表格行数
                 //获取每一行的单元格
                 x = sheet.getCell(0, i);//（列，行）
-                y = sheet.getCell(1, i);
+                y = sheet.getCell(col, i);
                 Point user = new Point();
                 //读取到的参数
-                user.Set((float)i, Float.parseFloat(y.getContents())); //x.getContents())
+                user.Set(Float.parseFloat(x.getContents()), Float.parseFloat(y.getContents()));
                 points.add(user);
                 i++;
             }

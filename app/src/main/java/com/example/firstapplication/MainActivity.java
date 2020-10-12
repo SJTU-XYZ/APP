@@ -66,20 +66,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        /*
-        AssetManager assetManager = getAssets();
-        try {
-            InputStream is = assetManager.open("excelReadTest.xls");
-            //InputStream is = new FileInputStream("D:\\SJTU\\EngInnovation\\APP\\app\\src\\main\\assets\\excelReadTest.xlsx");
-            Workbook workbook2 = Workbook.getWorkbook(is);
-            int i = 0;
-            //Workbook workbook3 = Workbook.getWorkbook(is);
-
-        } catch (IOException | BiffException e) {
-            e.printStackTrace();
-        }
-
-         */
     }
 
     @Override

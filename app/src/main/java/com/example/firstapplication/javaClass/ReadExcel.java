@@ -20,8 +20,8 @@ public class ReadExcel {
         this.filePath = filePath;
     }
 
-    public ReadExcel(InputStream _is) {
-        this.is = _is;
+    public ReadExcel(InputStream is) {
+        this.is = is;
     }
 
     public void readExcel() throws IOException, BiffException {

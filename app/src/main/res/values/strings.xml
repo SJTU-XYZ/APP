@@ -7,9 +7,9 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_home">负荷需求</string>
+    <string name="menu_gallery">光伏曲线</string>
+    <string name="menu_slideshow">实时电价</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="on">Turn On</string>
