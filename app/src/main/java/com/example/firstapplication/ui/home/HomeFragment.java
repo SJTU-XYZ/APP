@@ -78,14 +78,14 @@ public class HomeFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //将适配器添加到spinner中去
         spinner.setAdapter(adapter);
-        spinner.setVisibility(View.VISIBLE);//设置默认显示
+        //spinner.setVisibility(View.VISIBLE);//设置默认显示
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 // TODO Auto-generated method stub
                 day = arg2;
-                result.setText("选择天数：" + ((TextView) arg1).getText());
+                //result.setText("选择天数：" + ((TextView) arg1).getText());
                 chart.DrawExcelData(lineChart, day, "负荷需求");
             }
 

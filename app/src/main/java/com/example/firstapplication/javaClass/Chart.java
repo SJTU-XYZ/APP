@@ -71,7 +71,7 @@ public class Chart extends ReadExcel {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAxisLineColor(Color.WHITE);
         xAxis.setTextColor(Color.WHITE);
-        xAxis.setGranularity(1f);
+        xAxis.setGranularity(1);
 
         YAxis yAxis = lineChart.getAxisLeft();
         yAxis.setDrawGridLines(false);
