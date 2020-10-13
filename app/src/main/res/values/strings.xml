@@ -16,5 +16,8 @@
     <string name="off">Turn Off</string>
     <string name="Visible">Get Visible</string>
     <string name="List">List Devices</string>
+    <string name="Discover">Discover</string>
+    <string name="Connect">Connect</string>
     <string name="days">选择天数：</string>
+
 </resources>
