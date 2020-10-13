@@ -58,7 +58,7 @@ public class Chart extends ReadExcel {
 
     }
 
-    public void DrawExcelData(LineChart lineChart, int day, String text) {
+    public void DrawExcelData(LineChart lineChart, int day, String label, int color) {
         List<Entry> entries = new ArrayList<>();
         // 循环你的数据，向图表中添加点
         for (int i = day * 24; i < (day + 1) * 24; i++) {
@@ -71,7 +71,6 @@ public class Chart extends ReadExcel {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAxisLineColor(Color.WHITE);
         xAxis.setTextColor(Color.WHITE);
-        //xAxis.setGranularity(1);
 
         YAxis yAxis = lineChart.getAxisLeft();
         yAxis.setDrawGridLines(false);
@@ -79,14 +78,14 @@ public class Chart extends ReadExcel {
         lineChart.getAxisRight().setEnabled(false);
         yAxis.setTextColor(Color.WHITE);
 
-        LineDataSet dataSet = new LineDataSet(entries, " "); // 图表绑定数据，设置图表折现备注
+        LineDataSet dataSet = new LineDataSet(entries, label); // 图表绑定数据，设置图表折现备注
 
-        dataSet.setColor(Color.RED); // 设置折线图颜色
-        dataSet.setValueTextColor(Color.GRAY); // 设置数据值的颜色
+        dataSet.setColor(color); // 设置折线图颜色
+        dataSet.setValueTextColor(Color.WHITE); // 设置数据值的颜色
         dataSet.setDrawCircles(false);
 
         Description description = lineChart.getDescription();
-        description.setText(text); // 设置右下角备注
+        description.setText("小时"); // 设置右下角备注
         description.setTextColor(Color.WHITE);
 
         LineData lineData = new LineData(dataSet);
@@ -104,7 +103,7 @@ public class Chart extends ReadExcel {
             book = Workbook.getWorkbook(is);
             sheet = book.getSheet(sheetNum);
             i = 1;
-            while (i < 290) {//你的表格行数
+            while (i < 289) {//你的表格行数
                 //获取每一行的单元格
                 x = sheet.getCell(0, i);//（列，行）
                 y = sheet.getCell(col, i);

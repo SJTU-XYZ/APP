@@ -67,9 +67,9 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        loadLineChart = (LineChart) view.findViewById(R.id.loadChart);
-        PVLineChart = (LineChart) view.findViewById(R.id.PVChart);
-        feeLineChart = (LineChart) view.findViewById(R.id.feeChart);
+        loadLineChart = view.findViewById(R.id.loadChart);
+        PVLineChart = view.findViewById(R.id.PVChart);
+        feeLineChart = view.findViewById(R.id.feeChart);
 
         InputStream is = null;
         try {
@@ -90,6 +90,7 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
         feeChart = new Chart(is);
+
         loadChart.GetPointFromSheet(0, 1);
         PVChart.GetPointFromSheet(0,2);
         feeChart.GetPointFromSheet(0,3);
@@ -108,9 +109,9 @@ public class HomeFragment extends Fragment {
                 // TODO Auto-generated method stub
                 day = arg2;
                 //result.setText("选择天数：" + ((TextView) arg1).getText());
-                loadChart.DrawExcelData(loadLineChart, day, "负荷需求");
-                PVChart.DrawExcelData(PVLineChart, day, "光伏曲线");
-                feeChart.DrawExcelData(feeLineChart, day, "实时电价");
+                loadChart.DrawExcelData(loadLineChart, day, "负荷需求", Color.RED);
+                PVChart.DrawExcelData(PVLineChart, day, "光伏曲线", Color.GREEN);
+                feeChart.DrawExcelData(feeLineChart, day, "实时电价", Color.YELLOW);
             }
 
             @Override

@@ -28,7 +28,7 @@ public class GalleryFragment extends Fragment {
 
     private GalleryViewModel galleryViewModel;
     private Button On, Off, Visible, list;
-    private BluetoothAdapter BA;
+    private BluetoothAdapter bAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private ListView lv;
 
@@ -42,11 +42,30 @@ public class GalleryFragment extends Fragment {
 
         lv = (ListView) view.findViewById(R.id.listView1);
 
-        BA = BluetoothAdapter.getDefaultAdapter();
-
+        bAdapter = BluetoothAdapter.getDefaultAdapter();
+        On.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (bAdapter == null) {
+                    Toast.makeText(getContext(), "Bluetooth Not Supported", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (!bAdapter.isEnabled()) {
+                        startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1);
+                        Toast.makeText(getContext(), "Bluetooth Turned ON", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+        Off.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bAdapter.disable();
+                Toast.makeText(getContext(), "Bluetooth Turned OFF", Toast.LENGTH_SHORT).show();
+            }
+        });
         return view;
     }
-
+/*
     public void on(View view) {
         if (!BA.isEnabled()) {
             Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -85,6 +104,8 @@ public class GalleryFragment extends Fragment {
         startActivityForResult(getVisible, 0);
 
     }
+
+ */
     /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
