@@ -1,15 +1,15 @@
 <resources>
-    <string name="app_name">FirstApplication</string>
+    <string name="app_name">Descartes</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">Show and Control</string>
+    <string name="nav_header_subtitle">XYZ</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">负荷需求</string>
-    <string name="menu_gallery">光伏曲线</string>
-    <string name="menu_slideshow">实时电价</string>
+    <string name="menu_home">Data</string>
+    <string name="menu_gallery">BlueTooth</string>
+    <string name="menu_slideshow">Control</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="on">Turn On</string>

@@ -55,25 +55,47 @@ public class HomeFragment extends Fragment {
                                           "第7天", "第8天", "第9天", "第10天", "第11天", "第12天"};
     private int day = 0;
 
-    private Chart chart;
-    private LineChart lineChart;
+    private Chart loadChart;
+    private Chart PVChart;
+    private Chart feeChart;
+    private LineChart loadLineChart;
+    private LineChart PVLineChart;
+    private LineChart feeLineChart;
+
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        lineChart = (LineChart) view.findViewById(R.id.chart);
+        loadLineChart = (LineChart) view.findViewById(R.id.loadChart);
+        PVLineChart = (LineChart) view.findViewById(R.id.PVChart);
+        feeLineChart = (LineChart) view.findViewById(R.id.feeChart);
+
         InputStream is = null;
         try {
             is = requireActivity().getAssets().open("final.xls");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        chart = new Chart(is);
-        chart.GetPointFromSheet(0, 1);
+        loadChart = new Chart(is);
+        try {
+            is = requireActivity().getAssets().open("final.xls");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        PVChart = new Chart(is);
+        try {
+            is = requireActivity().getAssets().open("final.xls");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        feeChart = new Chart(is);
+        loadChart.GetPointFromSheet(0, 1);
+        PVChart.GetPointFromSheet(0,2);
+        feeChart.GetPointFromSheet(0,3);
 
-        result = (TextView) view.findViewById(R.id.result);
-        spinner = (Spinner) view.findViewById(R.id.spinner);
+        result = view.findViewById(R.id.result);
+        spinner = view.findViewById(R.id.spinner);
         adapter = new ArrayAdapter<String>(requireActivity(), android.R.layout.simple_spinner_item, days);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //将适配器添加到spinner中去
@@ -86,7 +108,9 @@ public class HomeFragment extends Fragment {
                 // TODO Auto-generated method stub
                 day = arg2;
                 //result.setText("选择天数：" + ((TextView) arg1).getText());
-                chart.DrawExcelData(lineChart, day, "负荷需求");
+                loadChart.DrawExcelData(loadLineChart, day, "负荷需求");
+                PVChart.DrawExcelData(PVLineChart, day, "光伏曲线");
+                feeChart.DrawExcelData(feeLineChart, day, "实时电价");
             }
 
             @Override

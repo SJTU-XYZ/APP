@@ -63,7 +63,7 @@ public class Chart extends ReadExcel {
         // 循环你的数据，向图表中添加点
         for (int i = day * 24; i < (day + 1) * 24; i++) {
             // turn your data into Entry objects
-            entries.add(new Entry( ((Point)points.get(i)).X(), ((Point)points.get(i)).Y() ));
+            entries.add(new Entry( points.get(i).X(), points.get(i).Y()));
         }
 
         XAxis xAxis = lineChart.getXAxis();
@@ -71,7 +71,7 @@ public class Chart extends ReadExcel {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAxisLineColor(Color.WHITE);
         xAxis.setTextColor(Color.WHITE);
-        xAxis.setGranularity(1);
+        //xAxis.setGranularity(1);
 
         YAxis yAxis = lineChart.getAxisLeft();
         yAxis.setDrawGridLines(false);
@@ -114,7 +114,7 @@ public class Chart extends ReadExcel {
                 points.add(user);
                 i++;
             }
-            book.close();
+            //book.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
