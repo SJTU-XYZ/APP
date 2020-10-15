@@ -117,7 +117,7 @@ public class BlueManager {
      * @param context context
      */
     private BlueManager(Context context) {
-        mContext = context.getContext();
+        mContext = context.getApplicationContext();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 

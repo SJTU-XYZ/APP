@@ -114,7 +114,7 @@ public class GalleryFragment extends Fragment {
     private View view;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_home, container, false);
+        view = inflater.inflate(R.layout.fragment_gallery, container, false);
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         mDevices = new ArrayList<>();

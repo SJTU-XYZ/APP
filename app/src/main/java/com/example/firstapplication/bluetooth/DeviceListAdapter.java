@@ -1,7 +1,6 @@
 package com.example.firstapplication.bluetooth;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import android.annotation.SuppressLint;
 
 import com.calypso.bluelib.bean.SearchResult;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -12,10 +11,11 @@ import java.util.List;
 
 public class DeviceListAdapter extends BaseQuickAdapter<SearchResult, BaseViewHolder> {
 
-    public DeviceListAdapter(@LayoutRes int layoutResId, @Nullable List<SearchResult> data) {
+    public DeviceListAdapter(int layoutResId, List<SearchResult> data) {
         super(layoutResId, data);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void convert(BaseViewHolder helper, SearchResult item) {
         helper.setText(R.id.name, item.getName());
