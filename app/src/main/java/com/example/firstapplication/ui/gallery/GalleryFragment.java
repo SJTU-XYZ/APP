@@ -1,10 +1,9 @@
 package com.example.firstapplication.ui.gallery;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,10 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.example.firstapplication.R;
 
@@ -41,7 +37,7 @@ public class GalleryFragment extends Fragment {
     private GalleryViewModel galleryViewModel;
     private Button buttonON, buttonOFF, buttonDisc, buttonList;
     private Button btnConnect, btnSend, btnQuit;
-    private ArrayAdapter aAdapter;
+    private ArrayAdapter<String> aAdapter;
     private BluetoothAdapter bAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private ListView listView;
@@ -54,18 +50,18 @@ public class GalleryFragment extends Fragment {
     TextView statusLabel;
     EditText etReceived, etSend;
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private static String address = "20:16:07:26:18:46";
-    private ArrayList macAddressList = new ArrayList();
+    private static String address = "5C:FB:7C:E8:43:E1";
+    private ArrayList<String> macAddressList = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gallery, container, false);
-        buttonON = (Button) view.findViewById(R.id.buttonOn);
-        buttonList = (Button) view.findViewById(R.id.buttonList);
-        buttonDisc = (Button) view.findViewById(R.id.buttonDisc);
-        btnConnect = (Button) view.findViewById(R.id.btnConnect);
+        buttonON = view.findViewById(R.id.buttonOn);
+        buttonList = view.findViewById(R.id.buttonList);
+        buttonDisc = view.findViewById(R.id.buttonDisc);
+        btnConnect = view.findViewById(R.id.btnConnect);
 
-        listView = (ListView) view.findViewById(R.id.listView1);
+        listView = view.findViewById(R.id.listView1);
 
         bAdapter = BluetoothAdapter.getDefaultAdapter();
         buttonON.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +96,7 @@ public class GalleryFragment extends Fragment {
                     Toast.makeText(getContext(), "Bluetooth Not Supported", Toast.LENGTH_SHORT).show();
                 } else {
                     Set<BluetoothDevice> pairedDevices = bAdapter.getBondedDevices();
-                    ArrayList list = new ArrayList();
+                    ArrayList<String> list = new ArrayList<>();
                     if (pairedDevices.size() > 0) {
                         for (BluetoothDevice device : pairedDevices) {
                             String deviceName = device.getName();
@@ -108,7 +104,7 @@ public class GalleryFragment extends Fragment {
                             list.add("Name: " + deviceName + "MAC Address: " + macAddress);
                             macAddressList.add(macAddress);
                         }
-                        aAdapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, list);
+                        aAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, list);
                         listView.setAdapter(aAdapter);
                     }
                 }
@@ -141,7 +137,6 @@ public class GalleryFragment extends Fragment {
         protected String doInBackground(String... params) {
             // TODO Auto-generated method stub
             BluetoothDevice device = bAdapter.getRemoteDevice(params[0]);
-
             try {
                 btSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
                 btSocket.connect();
@@ -157,16 +152,12 @@ public class GalleryFragment extends Fragment {
             }
             //取消搜索
             bAdapter.cancelDiscovery();
-
             try {
                 outStream = btSocket.getOutputStream();
-
             } catch (IOException e) {
                 Log.e("error", "ON RESUME: Output stream creation failed.", e);
                 return "Socket 流创建失败";
             }
-
-
             return "蓝牙连接正常,Socket 创建成功";
         }
 
@@ -198,37 +189,26 @@ public class GalleryFragment extends Fragment {
         @Override
         protected String doInBackground(String... arg0) {
             // TODO Auto-generated method stub
-
             if (btSocket == null) {
                 return "还没有创建连接";
             }
-
-            if (arg0[0].length() > 0)//不是空白串
-            {
+            if (arg0[0].length() > 0) {
                 //String target=arg0[0];
-
                 byte[] msgBuffer = arg0[0].getBytes();
-
                 try {
                     //  将msgBuffer中的数据写到outStream对象中
                     outStream.write(msgBuffer);
-
                 } catch (IOException e) {
                     Log.e("error", "ON RESUME: Exception during write.", e);
                     return "发送失败";
                 }
-
             }
-
             return "发送成功";
         }
-
     }
-
 
     //从蓝牙接收信息的线程
     class ReceiveThread extends Thread {
-
         String buffer = "";
 
         @Override
@@ -262,13 +242,11 @@ public class GalleryFragment extends Fragment {
 
 //			System.out.println("receive fragment size:"+length);
 
-            byte[] newbuff = new byte[length];  //newbuff字节数组，用于存放真正接收到的数据
+            byte[] newBuff = new byte[length];  //newbuff字节数组，用于存放真正接收到的数据
 
-            for (int j = 0; j < length; j++) {
-                newbuff[j] = buff[j];
-            }
+            System.arraycopy(buff, 0, newBuff, 0, length);
 
-            ReceiveData = ReceiveData + new String(newbuff);
+            ReceiveData = ReceiveData + new String(newBuff);
             Log.e("Data", ReceiveData);
 //			System.out.println("result :"+ReceiveData);
             Message msg = Message.obtain();
@@ -277,16 +255,12 @@ public class GalleryFragment extends Fragment {
         }
     }
 
-
     //更新界面的Handler类
     class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-
-            switch (msg.what) {
-                case 1:
-                    etReceived.setText(ReceiveData);
-                    break;
+            if (msg.what == 1) {
+                etReceived.setText(ReceiveData);
             }
         }
     }
@@ -300,5 +274,23 @@ public class GalleryFragment extends Fragment {
     }
 */
 
-
+    @Override
+    public void onDestroy() {
+        // TODO Auto-generated method stub
+        super.onDestroy();
+        try {
+            if (rThread != null) {
+                btSocket.close();
+                btSocket = null;
+                rThread.join();
+            }
+            //this.finish();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

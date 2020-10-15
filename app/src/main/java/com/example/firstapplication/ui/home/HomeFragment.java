@@ -71,25 +71,13 @@ public class HomeFragment extends Fragment {
         PVLineChart = view.findViewById(R.id.PVChart);
         feeLineChart = view.findViewById(R.id.feeChart);
 
-        InputStream is = null;
         try {
-            is = requireActivity().getAssets().open("final.xls");
+            loadChart = new Chart(requireActivity().getAssets().open("final.xls"));
+            PVChart = new Chart(requireActivity().getAssets().open("final.xls"));
+            feeChart = new Chart(requireActivity().getAssets().open("final.xls"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        loadChart = new Chart(is);
-        try {
-            is = requireActivity().getAssets().open("final.xls");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PVChart = new Chart(is);
-        try {
-            is = requireActivity().getAssets().open("final.xls");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        feeChart = new Chart(is);
 
         loadChart.GetPointFromSheet(0, 1);
         PVChart.GetPointFromSheet(0,2);
