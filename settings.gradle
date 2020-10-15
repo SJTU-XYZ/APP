@@ -1,3 +1,4 @@
+include ':bluetools'
 include ':MPChartLib'
 include ':app'
 rootProject.name = "FirstApplication"
