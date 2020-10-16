@@ -19,5 +19,10 @@
     <string name="Discover">Discover</string>
     <string name="Connect">Connect</string>
     <string name="days">选择天数：</string>
+    <string name="add_appliance">Add Appliance</string>
+    <string name="name">Name</string>
+    <string name="power">Power</string>
+    <string name="type">Type</string>
+    <string name="save">Save</string>
 
 </resources>

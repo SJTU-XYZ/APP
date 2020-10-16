@@ -9,9 +9,9 @@ public interface OnConnectListener extends IErrorListener {
 
     void onConnectStart();
 
-    void onConnectting();
+    void onConnecting();
 
     void onConnectFailed();
 
-    void onConectSuccess(String mac);
+    void onConnectSuccess(String mac);
 }

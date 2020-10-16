@@ -430,12 +430,12 @@ public class BlueManager {
                 mCurrStatus = STATUS.FREE;
                 Log.d(TAG, "prepare to connect: " + remoteDevice.getAddress() + " " + remoteDevice.getName());
                 mSocket = remoteDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Constants.STR_UUID));
-                onConnectListener.onConnectting();
+                onConnectListener.onConnecting();
                 mSocket.connect();
                 mInputStream = mSocket.getInputStream();
                 mOutputStream = mSocket.getOutputStream();
                 mCurrStatus = STATUS.CONNECTED;
-                onConnectListener.onConectSuccess(mac);
+                onConnectListener.onConnectSuccess(mac);
             } catch (Exception e) {
                 e.printStackTrace();
                 onConnectListener.onConnectFailed();

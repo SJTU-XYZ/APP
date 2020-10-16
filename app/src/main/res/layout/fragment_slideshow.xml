@@ -20,4 +20,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_width="388dp"
+        android:layout_height="34dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:text="@string/add_appliance"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="681dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -59,7 +59,7 @@ import java.util.UUID;
 public class GalleryFragment extends Fragment {
 
     private int progress = 0;
-    public static final String TAG = "MainActivity";
+    public static final String TAG = "GalleryFragment";
     private BlueManager blueManager;
     private TextView statusView;
     private TextView contextView;
@@ -115,7 +115,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_gallery, container, false);
-        super.onCreate(savedInstanceState);
+        //super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         mDevices = new ArrayList<>();
         mAdapter = new DeviceListAdapter(R.layout.device_list_item, mDevices);
@@ -152,7 +152,6 @@ public class GalleryFragment extends Fragment {
             public void onStartDiscovery() {
                 sendMessage(0, "正在搜索设备..");
                 Log.d(TAG, "onStartDiscovery()");
-
             }
 
             @Override
@@ -185,9 +184,9 @@ public class GalleryFragment extends Fragment {
             }
 
             @Override
-            public void onConnectting() {
+            public void onConnecting() {
                 sendMessage(0, "正在连接..");
-                Log.i("blue", "onConnectting");
+                Log.i("blue", "onConnecting");
             }
 
             @Override
@@ -198,9 +197,9 @@ public class GalleryFragment extends Fragment {
             }
 
             @Override
-            public void onConectSuccess(String mac) {
+            public void onConnectSuccess(String mac) {
                 sendMessage(4, "连接成功 MAC: " + mac);
-                Log.i("blue", "onConectSuccess");
+                Log.i("blue", "onConnectSuccess");
             }
 
             @Override
@@ -362,6 +361,5 @@ public class GalleryFragment extends Fragment {
             handler.removeCallbacksAndMessages(null);
             handler = null;
         }
-
     }
 }
