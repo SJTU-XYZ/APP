@@ -16,6 +16,7 @@ import java.util.List;
 public class MyAdapter extends BaseAdapter {
     private Context mContext;
     private List<Appliance> mList = new ArrayList<>();
+    ViewHolder viewHolder = null;
 
     public MyAdapter(Context context, List<Appliance> list) {
         mContext = context;
@@ -39,7 +40,6 @@ public class MyAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
-        ViewHolder viewHolder = null;
         if (view == null) {
             viewHolder = new ViewHolder();
             view = LayoutInflater.from(mContext).inflate(R.layout.list_item, null);
@@ -96,6 +96,11 @@ public class MyAdapter extends BaseAdapter {
         TextView mTextView;
         Button btnDelete;
         Button btnSetting;
+        int textColor;
     }
 
+    public void SetTextColor(int color) {
+        viewHolder.textColor = color;
+        viewHolder.mTextView.setTextColor(viewHolder.textColor);
+    }
 }

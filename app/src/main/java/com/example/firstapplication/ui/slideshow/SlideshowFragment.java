@@ -39,6 +39,7 @@ public class SlideshowFragment extends Fragment {
     private EditText inputAppliance;
     private CreateAddAppDialog addDialog;
     private SettingAppDialog settingDialog;
+    private ShowAppDialog showAppDialog;
     private ApplianceManager appManager;
     private View.OnClickListener onClickListener;
     private Button addBtn;
@@ -84,6 +85,18 @@ public class SlideshowFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(getContext(), "Click item" + i, Toast.LENGTH_SHORT).show();
+                // TODO
+                //showAppDialog.appStatus.setText(appManager.appliances.get(i).GetName());
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_app_show_cancel) {
+                            showAppDialog.cancel();
+                        }
+                    }
+                };
+                showAppDialog = new ShowAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                showAppDialog.show();
             }
         });
         //ListView item 中的删除按钮的点击事件
@@ -104,6 +117,18 @@ public class SlideshowFragment extends Fragment {
                     public void onClick(View v) {
                         if (v.getId() == R.id.btn_mode_save) {
                             appManager.appliances.get(settingIndex).SetMode(settingDialog.mode);
+                            switch (settingDialog.mode) {
+                                case AUTO:
+                                    adapter.SetTextColor(Color.BLUE);
+                                    break;
+                                case AlwaysON:
+                                    adapter.SetTextColor(Color.GREEN);
+                                    break;
+                                case AlwaysOFF:
+                                    adapter.SetTextColor(Color.GRAY);
+                                    break;
+                            }
+
                             settingDialog.cancel();
                         }
                     }
