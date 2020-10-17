@@ -50,7 +50,7 @@ public class MyAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
-        viewHolder.mTextView.setText(mList.get(i).GetName());
+        viewHolder.mTextView.setText(mList.get(i).name);
         viewHolder.btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

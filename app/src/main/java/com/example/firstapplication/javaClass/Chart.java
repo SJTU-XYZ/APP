@@ -23,11 +23,12 @@ import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
 public class Chart extends ReadExcel {
-    private List<Point> points = new ArrayList<>();
+    public List<Point> points = new ArrayList<>();
 
     public Chart(String filePath) {
         super(filePath);
     }
+
     public Chart(InputStream is) {
         super(is);
     }
@@ -63,7 +64,7 @@ public class Chart extends ReadExcel {
         // 循环你的数据，向图表中添加点
         for (int i = day * 24; i < (day + 1) * 24; i++) {
             // turn your data into Entry objects
-            entries.add(new Entry( points.get(i).X(), points.get(i).Y()));
+            entries.add(new Entry(points.get(i).X(), points.get(i).Y()));
         }
 
         XAxis xAxis = lineChart.getXAxis();

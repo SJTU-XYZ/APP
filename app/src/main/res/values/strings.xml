@@ -24,5 +24,6 @@
     <string name="power">Power</string>
     <string name="type">Type</string>
     <string name="save">Save</string>
+    <string name="start">START</string>
 
 </resources>

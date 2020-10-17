@@ -29,6 +29,8 @@ import com.example.firstapplication.control.ApplianceType;
 import com.example.firstapplication.control.ApplianceManager;
 import com.example.firstapplication.control.Mode_e;
 import com.example.firstapplication.control.MyAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ public class SlideshowFragment extends Fragment {
     private ApplianceManager appManager;
     private View.OnClickListener onClickListener;
     private Button addBtn;
-
+    private Button startEmulate;// = findViewById(R.id.fab)
     private ListView listView;
 
     private int settingIndex;
@@ -51,8 +53,9 @@ public class SlideshowFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_slideshow, container, false);
-        addBtn = (Button)view.findViewById(R.id.btn_add);
-        appManager = new ApplianceManager();
+        addBtn = view.findViewById(R.id.btn_add);
+        startEmulate = view.findViewById(R.id.btn_start);
+        appManager = new ApplianceManager(requireActivity());
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -116,7 +119,7 @@ public class SlideshowFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (v.getId() == R.id.btn_mode_save) {
-                            appManager.appliances.get(settingIndex).SetMode(settingDialog.mode);
+                            appManager.appliances.get(settingIndex).mode = settingDialog.mode;
                             switch (settingDialog.mode) {
                                 case AUTO:
                                     adapter.SetTextColor(Color.BLUE);
@@ -139,6 +142,12 @@ public class SlideshowFragment extends Fragment {
             }
         });
 
+        startEmulate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appManager.StartEmulate();
+            }
+        });
         return view;
     }
 }
