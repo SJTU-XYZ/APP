@@ -1,5 +1,6 @@
 package com.example.firstapplication.ui.slideshow;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -7,8 +8,12 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.firstapplication.R;
 import com.example.firstapplication.control.ApplianceType;
@@ -27,6 +32,11 @@ public class CreateAddAppDialog extends Dialog {
     public ApplianceType type;
     public Mode_e mode;
     private View.OnClickListener mClickListener;
+
+    public TextView result = null;
+    public Spinner spinner = null;
+    private ArrayAdapter<String> adapter = null;
+    private static final String[] types = {"Necessary", "Unnecessary"};
 
     public CreateAddAppDialog(Activity context) {
         super(context);
@@ -47,12 +57,36 @@ public class CreateAddAppDialog extends Dialog {
 
         text_name = (EditText) findViewById(R.id.text_name);
         text_power = (EditText) findViewById(R.id.text_power);
-        text_type = (EditText) findViewById(R.id.text_type);
+        //text_type = (EditText) findViewById(R.id.text_type);
 
-        name = text_name.toString();
-        //power = Float.parseFloat(text_power.toString());
-        power = 10;
+        //result = findViewById(R.id.result_type);
+        spinner = findViewById(R.id.spinner_type);
+        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, types);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //将适配器添加到spinner中去
+        spinner.setAdapter(adapter);
 
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                // TODO Auto-generated method stub
+                switch (arg2) {
+                    case 0:
+                        type = ApplianceType.Necessary;
+                        break;
+                    case 1:
+                        type = ApplianceType.Unnecessary;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
         /*
          * 获取圣诞框的窗口对象及参数对象以修改对话框的布局设置, 可以直接调用getWindow(),表示获得这个Activity的Window
          * 对象,这样这可以以同样的方式改变这个Activity的属性.

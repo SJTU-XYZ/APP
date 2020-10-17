@@ -36,6 +36,8 @@ public class Appliance {
         return powerConsumption;
     }
 
+    public ApplianceType Type() {return type;}
+
     public void Work(State_e autoState) {
         switch (mode) {
             case AlwaysON:
