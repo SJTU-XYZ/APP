@@ -20,8 +20,8 @@ public class Appliance {
         this.name = name;
     }
 
-    public void SetState(Mode_e state) {
-        this.mode = state;
+    public void SetMode(Mode_e mode) {
+        this.mode = mode;
     }
 
     public void SetPower(float power) {

@@ -12,8 +12,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,27 +26,32 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.firstapplication.R;
 import com.example.firstapplication.control.Appliance;
 import com.example.firstapplication.control.ApplianceType;
-import com.example.firstapplication.control.ControlAppliance;
+import com.example.firstapplication.control.ApplianceManager;
 import com.example.firstapplication.control.Mode_e;
+import com.example.firstapplication.control.MyAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SlideshowFragment extends Fragment {
 
     private SlideshowViewModel slideshowViewModel;
     private EditText inputAppliance;
-    private CreateAddAppDialog dialog;
-    private ControlAppliance controlApp;
+    private CreateAddAppDialog addDialog;
+    private SettingAppDialog settingDialog;
+    private ApplianceManager appManager;
     private View.OnClickListener onClickListener;
     private Button addBtn;
 
-    private ApplianceType tempType;
+    private ListView listView;
+
+    private int settingIndex;
+    //private List<Appliance> appList = appManager.appliances;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_slideshow, container, false);
         addBtn = (Button)view.findViewById(R.id.btn_add);
-        controlApp = new ControlAppliance();
-
-
-        //spinner.setVisibility(View.VISIBLE);//设置默认显示
+        appManager = new ApplianceManager();
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -53,21 +60,60 @@ public class SlideshowFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (v.getId() == R.id.btn_save) {
-                            String name = dialog.text_name.getText().toString().trim();
-                            String power = dialog.text_power.getText().toString().trim();
-                            Appliance app = new Appliance(name, Float.parseFloat(power), dialog.type, Mode_e.AUTO);
-                            controlApp.Add(app);
-                            if(dialog.text_name != null && dialog.text_power != null) {
-                                dialog.cancel();
+                            String name = addDialog.text_name.getText().toString().trim();
+                            String power = addDialog.text_power.getText().toString().trim();
+                            Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
+                            appManager.Add(app);
+                            if(addDialog.text_name != null && addDialog.text_power != null) {
+                                addDialog.cancel();
                             }
                         }
                     }
                 };
 
-                dialog = new CreateAddAppDialog(getActivity(), R.style.AppTheme, onClickListener);
-                dialog.show();
+                addDialog = new CreateAddAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                addDialog.show();
             }
         });
+
+        this.listView = (ListView) view.findViewById(R.id.listView);
+        final MyAdapter adapter = new MyAdapter(getContext(), appManager.appliances);
+        listView.setAdapter(adapter);
+        //ListView item的点击事件
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getContext(), "Click item" + i, Toast.LENGTH_SHORT).show();
+            }
+        });
+        //ListView item 中的删除按钮的点击事件
+        adapter.setOnItemDeleteClickListener(new MyAdapter.onItemDeleteListener() {
+            @Override
+            public void onDeleteClick(int i) {
+                appManager.appliances.remove(i);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        adapter.setOnItemSettingClickListener(new MyAdapter.onItemSettingListener() {
+            @Override
+            public void onSettingClick(int i) {
+                settingIndex = i;
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_mode_save) {
+                            appManager.appliances.get(settingIndex).SetMode(settingDialog.mode);
+                            settingDialog.cancel();
+                        }
+                    }
+                };
+
+                settingDialog = new SettingAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                settingDialog.show();
+            }
+        });
+
         return view;
     }
 }

@@ -28,8 +28,8 @@ public class Chart extends ReadExcel {
     public Chart(String filePath) {
         super(filePath);
     }
-    public Chart(InputStream _is) {
-        super(_is);
+    public Chart(InputStream is) {
+        super(is);
     }
 
     public void Draw(LineChart chart, float[] x, float[] y) {

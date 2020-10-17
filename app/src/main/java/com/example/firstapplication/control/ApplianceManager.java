@@ -1,16 +1,19 @@
 package com.example.firstapplication.control;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
-public class ControlAppliance {
+public class ApplianceManager {
     private float electricityBill;
     private float PVGeneration;
     private float allPowerConsumption;
-    private LinkedList<Appliance> appliances;
+    public List<Appliance> appliances;
 
-    public ControlAppliance() {
-        appliances = new LinkedList<>();
+    public ApplianceManager() {
+        appliances = new ArrayList<>();
     }
+
     public void Add(Appliance app) {
         appliances.add(app);
     }
