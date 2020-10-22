@@ -3,47 +3,66 @@ package com.example.firstapplication.ui.gallery;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.calypso.bluelib.bean.MessageBean;
-import com.calypso.bluelib.bean.SearchResult;
-import com.calypso.bluelib.listener.OnConnectListener;
-import com.calypso.bluelib.listener.OnReceiveMessageListener;
-import com.calypso.bluelib.listener.OnSearchDeviceListener;
-import com.calypso.bluelib.listener.OnSendMessageListener;
-import com.calypso.bluelib.manage.BlueManager;
-import com.calypso.bluelib.utils.TypeConversion;
-import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.clj.fastble.BleManager;
+import com.clj.fastble.callback.BleGattCallback;
+import com.clj.fastble.callback.BleMtuChangedCallback;
+import com.clj.fastble.callback.BleRssiCallback;
+import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.data.BleDevice;
+import com.clj.fastble.exception.BleException;
+import com.clj.fastble.scan.BleScanRuleConfig;
 import com.example.firstapplication.MainActivity;
 import com.example.firstapplication.R;
+import com.example.firstapplication.blesample.adapter.DeviceAdapter;
+import com.example.firstapplication.blesample.comm.ObserverManager;
+import com.example.firstapplication.blesample.operation.OperationActivity;
 import com.example.firstapplication.bluetooth.DeviceListAdapter;
 
 import java.io.IOException;
@@ -58,308 +77,373 @@ import java.util.UUID;
 
 public class GalleryFragment extends Fragment {
 
-    private int progress = 0;
-    public static final String TAG = "GalleryFragment";
-    private BlueManager blueManager;
-    private TextView statusView;
-    private TextView contextView;
-    private ProgressBar progressBar;
-    private StringBuilder stringBuilder;
-    private List<SearchResult> mDevices;
-    private DeviceListAdapter mAdapter;
-    private RecyclerView recycleView;
-    private RelativeLayout deviceList;
-    private RelativeLayout deviceInfo;
-    private OnConnectListener onConnectListener;
-    private OnSendMessageListener onSendMessageListener;
-    private OnSearchDeviceListener onSearchDeviceListener;
-    private OnReceiveMessageListener onReceiveMessageListener;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int REQUEST_CODE_OPEN_GPS = 1;
+    private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @SuppressLint("HandlerLeak")
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            String message = msg.obj.toString();
-            switch (msg.what) {
-                case 0:
-                    statusView.setText(message);
-                    break;
-                case 1:
-                    stringBuilder.append(message + " \n");
-                    contextView.setText(stringBuilder.toString());
-                    progress += 4;
-                    progressBar.setProgress(progress);
-                    break;
-                case 2:
-                    progress = 100;
-                    progressBar.setProgress(progress);
-                    break;
-                case 3:
-                    statusView.setText("接收完成！");
-                    stringBuilder.delete(0, stringBuilder.length());
-                    stringBuilder.append(message);
-                    contextView.setText(stringBuilder.toString());
-                    break;
-                case 4:
-                    statusView.setText(message);
-                    deviceInfo.setVisibility(View.VISIBLE);
-                    deviceList.setVisibility(View.GONE);
-                    break;
-            }
-        }
-    };
+    private LinearLayout layout_setting;
+    private TextView txt_setting;
+    private Button btn_scan;
+    private EditText et_name, et_mac, et_uuid;
+    private Switch sw_auto;
+    private ImageView img_loading;
+
+    private Animation operatingAnim;
+    private DeviceAdapter mDeviceAdapter;
+    private ProgressDialog progressDialog;
 
     private View view;
+
+    private View.OnClickListener onClickListener;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_gallery, container, false);
-        //super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-        mDevices = new ArrayList<>();
-        mAdapter = new DeviceListAdapter(R.layout.device_list_item, mDevices);
-        stringBuilder = new StringBuilder();
-        deviceList = view.findViewById(R.id.parent_r1);
-        deviceInfo = view.findViewById(R.id.parent_r2);
-        progressBar = view.findViewById(R.id.progressbar);
-        recycleView = view.findViewById(R.id.blue_rv);
-        recycleView.setLayoutManager(new LinearLayoutManager(getContext()));
-        contextView = view.findViewById(R.id.context);
-        statusView = view.findViewById(R.id.status);
-        recycleView.setAdapter(mAdapter);
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (ContextCompat.checkSelfPermission(requireContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions((Activity) requireContext(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
-                if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) requireContext(),
-                        Manifest.permission.READ_CONTACTS)) {
-                    Toast.makeText(requireContext(), "shouldShowRequestPermissionRationale", Toast.LENGTH_SHORT).show();
+        BleManager.getInstance().init(requireActivity().getApplication());
+        BleManager.getInstance()
+                .enableLog(true)
+                .setReConnectCount(1, 5000)
+                .setConnectOverTime(20000)
+                .setOperateTimeout(5000);
+
+        onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_scan:
+                        if (btn_scan.getText().equals(getString(R.string.start_scan))) {
+                            checkPermissions();
+                        } else if (btn_scan.getText().equals(getString(R.string.stop_scan))) {
+                            BleManager.getInstance().cancelScan();
+                        }
+                        break;
+
+                    case R.id.txt_setting:
+                        if (layout_setting.getVisibility() == View.VISIBLE) {
+                            layout_setting.setVisibility(View.GONE);
+                            txt_setting.setText(getString(R.string.expand_search_settings));
+                        } else {
+                            layout_setting.setVisibility(View.VISIBLE);
+                            txt_setting.setText(getString(R.string.retrieve_search_settings));
+                        }
+                        break;
                 }
             }
-        }
-        initBlueManager();
-        initListener();
+        };
+        initView();
         return view;
     }
 
-    /**
-     * 初始化蓝牙管理，设置监听
-     */
-    public void initBlueManager() {
-        onSearchDeviceListener = new OnSearchDeviceListener() {
-            @Override
-            public void onStartDiscovery() {
-                sendMessage(0, "正在搜索设备..");
-                Log.d(TAG, "onStartDiscovery()");
-            }
-
-            @Override
-            public void onNewDeviceFound(BluetoothDevice device) {
-                Log.d(TAG, "new device: " + device.getName() + " " + device.getAddress());
-            }
-
-            @Override
-            public void onSearchCompleted(List<SearchResult> bondedList, List<SearchResult> newList) {
-                Log.d(TAG, "SearchCompleted: bondedList" + bondedList.toString());
-                Log.d(TAG, "SearchCompleted: newList" + newList.toString());
-                sendMessage(0, "搜索完成,点击列表进行连接！");
-                mDevices.clear();
-                mDevices.addAll(newList);
-                mAdapter.notifyDataSetChanged();
-                deviceInfo.setVisibility(View.GONE);
-                deviceList.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                sendMessage(0, "搜索失败");
-            }
-        };
-        onConnectListener = new OnConnectListener() {
-            @Override
-            public void onConnectStart() {
-                sendMessage(0, "开始连接");
-                Log.i("blue", "onConnectStart");
-            }
-
-            @Override
-            public void onConnecting() {
-                sendMessage(0, "正在连接..");
-                Log.i("blue", "onConnecting");
-            }
-
-            @Override
-            public void onConnectFailed() {
-                sendMessage(0, "连接失败！");
-                Log.i("blue", "onConnectFailed");
-
-            }
-
-            @Override
-            public void onConnectSuccess(String mac) {
-                sendMessage(4, "连接成功 MAC: " + mac);
-                Log.i("blue", "onConnectSuccess");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                sendMessage(0, "连接异常！");
-                Log.i("blue", "onError");
-            }
-        };
-        onSendMessageListener = new OnSendMessageListener() {
-            @Override
-            public void onSuccess(int status, String response) {
-                sendMessage(0, "发送成功！");
-                Log.i("blue", "send message is success ! ");
-            }
-
-            @Override
-            public void onConnectionLost(Exception e) {
-                sendMessage(0, "连接断开！");
-                Log.i("blue", "send message is onConnectionLost ! ");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                sendMessage(0, "发送失败！");
-                Log.i("blue", "send message is onError ! ");
-            }
-        };
-        onReceiveMessageListener = new OnReceiveMessageListener() {
-
-
-            @Override
-            public void onProgressUpdate(String what, int progress) {
-                sendMessage(1, what);
-            }
-
-            @Override
-            public void onDetectDataUpdate(String what) {
-                sendMessage(3, what);
-            }
-
-            @Override
-            public void onDetectDataFinish() {
-                sendMessage(2, "接收完成！");
-                Log.i("blue", "receive message is onDetectDataFinish");
-            }
-
-            @Override
-            public void onNewLine(String s) {
-                sendMessage(3, s);
-            }
-
-            @Override
-            public void onConnectionLost(Exception e) {
-                sendMessage(0, "连接断开");
-                Log.i("blue", "receive message is onConnectionLost ! ");
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.i("blue", "receive message is onError ! ");
-            }
-        };
-        blueManager = BlueManager.getInstance(getContext());
-        blueManager.setOnSearchDeviceListener(onSearchDeviceListener);
-        blueManager.setOnConnectListener(onConnectListener);
-        blueManager.setOnSendMessageListener(onSendMessageListener);
-        blueManager.setOnReceiveMessageListener(onReceiveMessageListener);
-        blueManager.requestEnableBt();
-    }
-
-    /**
-     * 为控件添加事件监听
-     */
-    public void initListener() {
-
-        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                String mac = mDevices.get(position).getAddress();
-                blueManager.connectDevice(mac);
-            }
-        });
-
-        view.findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                blueManager.setReadVersion(false);
-                blueManager.searchDevices();
-            }
-        });
-
-        view.findViewById(R.id.get_sn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MessageBean item = new MessageBean(TypeConversion.getDeviceVersion());
-                blueManager.setReadVersion(true);
-                blueManager.sendMessage(item, true);
-            }
-        });
-
-        view.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                blueManager.closeDevice();
-                contextView.setText(null);
-                deviceList.setVisibility(View.VISIBLE);
-                deviceInfo.setVisibility(View.GONE);
-            }
-        });
-
-        view.findViewById(R.id.btn_send).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                blueManager.setReadVersion(false);
-                progress = 0;
-                progressBar.setProgress(progress);
-                stringBuilder.delete(0, stringBuilder.length());
-                contextView.setText("");
-                MessageBean item = new MessageBean(TypeConversion.startDetect());
-                blueManager.sendMessage(item, true);
-            }
-        });
-    }
-
-    /**
-     * @param type    0 修改状态  1 更新进度  2 体检完成  3 体检数据进度
-     * @param context
-     */
-    public void sendMessage(int type, String context) {
-        if (handler != null) {
-            Message message = handler.obtainMessage();
-            message.what = type;
-            message.obj = context;
-            handler.sendMessage(message);
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == 2) {
-            if (permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && grantResults[0]
-                    == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.
-                        permission.ACCESS_COARSE_LOCATION)) {
-                    return;
-                }
-            }
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        showConnectedDevice();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (blueManager != null) {
-            blueManager.close();
-            blueManager = null;
+        BleManager.getInstance().disconnectAllDevice();
+        BleManager.getInstance().destroy();
+    }
+
+
+    private void initView() {
+        //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+
+        btn_scan = (Button) view.findViewById(R.id.btn_scan);
+        btn_scan.setText(getString(R.string.start_scan));
+        btn_scan.setOnClickListener(onClickListener);
+
+        et_name = (EditText) view.findViewById(R.id.et_name);
+        et_mac = (EditText) view.findViewById(R.id.et_mac);
+        et_uuid = (EditText) view.findViewById(R.id.et_uuid);
+        sw_auto = (Switch) view.findViewById(R.id.sw_auto);
+
+        layout_setting = (LinearLayout) view.findViewById(R.id.layout_setting);
+        txt_setting = (TextView) view.findViewById(R.id.txt_setting);
+        txt_setting.setOnClickListener(onClickListener);
+        layout_setting.setVisibility(View.GONE);
+        txt_setting.setText(getString(R.string.expand_search_settings));
+
+        img_loading = (ImageView) view.findViewById(R.id.img_loading);
+        operatingAnim = AnimationUtils.loadAnimation(getContext(), R.anim.rotate);
+        operatingAnim.setInterpolator(new LinearInterpolator());
+        progressDialog = new ProgressDialog(getContext());
+
+        mDeviceAdapter = new DeviceAdapter(getContext());
+        mDeviceAdapter.setOnDeviceClickListener(new DeviceAdapter.OnDeviceClickListener() {
+            @Override
+            public void onConnect(BleDevice bleDevice) {
+                if (!BleManager.getInstance().isConnected(bleDevice)) {
+                    BleManager.getInstance().cancelScan();
+                    connect(bleDevice);
+                }
+            }
+
+            @Override
+            public void onDisConnect(final BleDevice bleDevice) {
+                if (BleManager.getInstance().isConnected(bleDevice)) {
+                    BleManager.getInstance().disconnect(bleDevice);
+                }
+            }
+
+            @Override
+            public void onDetail(BleDevice bleDevice) {
+                if (BleManager.getInstance().isConnected(bleDevice)) {
+                    Intent intent = new Intent(getContext(), OperationActivity.class);
+                    intent.putExtra(OperationActivity.KEY_DATA, bleDevice);
+                    startActivity(intent);
+                }
+            }
+        });
+        ListView listView_device = (ListView) view.findViewById(R.id.list_device);
+        listView_device.setAdapter(mDeviceAdapter);
+    }
+
+    private void showConnectedDevice() {
+        List<BleDevice> deviceList = BleManager.getInstance().getAllConnectedDevice();
+        mDeviceAdapter.clearConnectedDevice();
+        for (BleDevice bleDevice : deviceList) {
+            mDeviceAdapter.addDevice(bleDevice);
         }
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-            handler = null;
+        mDeviceAdapter.notifyDataSetChanged();
+    }
+
+    private void setScanRule() {
+        String[] uuids;
+        String str_uuid = et_uuid.getText().toString();
+        if (TextUtils.isEmpty(str_uuid)) {
+            uuids = null;
+        } else {
+            uuids = str_uuid.split(",");
+        }
+        UUID[] serviceUuids = null;
+        if (uuids != null && uuids.length > 0) {
+            serviceUuids = new UUID[uuids.length];
+            for (int i = 0; i < uuids.length; i++) {
+                String name = uuids[i];
+                String[] components = name.split("-");
+                if (components.length != 5) {
+                    serviceUuids[i] = null;
+                } else {
+                    serviceUuids[i] = UUID.fromString(uuids[i]);
+                }
+            }
+        }
+
+        String[] names;
+        String str_name = et_name.getText().toString();
+        if (TextUtils.isEmpty(str_name)) {
+            names = null;
+        } else {
+            names = str_name.split(",");
+        }
+
+        String mac = et_mac.getText().toString();
+
+        boolean isAutoConnect = sw_auto.isChecked();
+
+        BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
+                .setServiceUuids(serviceUuids)      // 只扫描指定的服务的设备，可选
+                .setDeviceName(true, names)   // 只扫描指定广播名的设备，可选
+                .setDeviceMac(mac)                  // 只扫描指定mac的设备，可选
+                .setAutoConnect(isAutoConnect)      // 连接时的autoConnect参数，可选，默认false
+                .setScanTimeOut(10000)              // 扫描超时时间，可选，默认10秒
+                .build();
+        BleManager.getInstance().initScanRule(scanRuleConfig);
+    }
+
+    private void startScan() {
+        BleManager.getInstance().scan(new BleScanCallback() {
+            @Override
+            public void onScanStarted(boolean success) {
+                mDeviceAdapter.clearScanDevice();
+                mDeviceAdapter.notifyDataSetChanged();
+                img_loading.startAnimation(operatingAnim);
+                img_loading.setVisibility(View.VISIBLE);
+                btn_scan.setText(getString(R.string.stop_scan));
+            }
+
+            @Override
+            public void onLeScan(BleDevice bleDevice) {
+                super.onLeScan(bleDevice);
+            }
+
+            @Override
+            public void onScanning(BleDevice bleDevice) {
+                mDeviceAdapter.addDevice(bleDevice);
+                mDeviceAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onScanFinished(List<BleDevice> scanResultList) {
+                img_loading.clearAnimation();
+                img_loading.setVisibility(View.INVISIBLE);
+                btn_scan.setText(getString(R.string.start_scan));
+            }
+        });
+    }
+
+    private void connect(final BleDevice bleDevice) {
+        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
+            @Override
+            public void onStartConnect() {
+                progressDialog.show();
+            }
+
+            @Override
+            public void onConnectFail(BleDevice bleDevice, BleException exception) {
+                img_loading.clearAnimation();
+                img_loading.setVisibility(View.INVISIBLE);
+                btn_scan.setText(getString(R.string.start_scan));
+                progressDialog.dismiss();
+                Toast.makeText(getContext(), getString(R.string.connect_fail), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+                progressDialog.dismiss();
+                mDeviceAdapter.addDevice(bleDevice);
+                mDeviceAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
+                progressDialog.dismiss();
+
+                mDeviceAdapter.removeDevice(bleDevice);
+                mDeviceAdapter.notifyDataSetChanged();
+
+                if (isActiveDisConnected) {
+                    Toast.makeText(getContext(), getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+                    ObserverManager.getInstance().notifyObserver(bleDevice);
+                }
+
+            }
+        });
+    }
+
+    private void readRssi(BleDevice bleDevice) {
+        BleManager.getInstance().readRssi(bleDevice, new BleRssiCallback() {
+            @Override
+            public void onRssiFailure(BleException exception) {
+                Log.i(TAG, "onRssiFailure" + exception.toString());
+            }
+
+            @Override
+            public void onRssiSuccess(int rssi) {
+                Log.i(TAG, "onRssiSuccess: " + rssi);
+            }
+        });
+    }
+
+    private void setMtu(BleDevice bleDevice, int mtu) {
+        BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
+            @Override
+            public void onSetMTUFailure(BleException exception) {
+                Log.i(TAG, "onsetMTUFailure" + exception.toString());
+            }
+
+            @Override
+            public void onMtuChanged(int mtu) {
+                Log.i(TAG, "onMtuChanged: " + mtu);
+            }
+        });
+    }
+
+    @Override
+    public final void onRequestPermissionsResult(int requestCode,
+                                                 @NonNull String[] permissions,
+                                                 @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_LOCATION:
+                if (grantResults.length > 0) {
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            onPermissionGranted(permissions[i]);
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
+    private void checkPermissions() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+            Toast.makeText(getContext(), getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+        List<String> permissionDeniedList = new ArrayList<>();
+        for (String permission : permissions) {
+            int permissionCheck = ContextCompat.checkSelfPermission(requireContext(), permission);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                onPermissionGranted(permission);
+            } else {
+                permissionDeniedList.add(permission);
+            }
+        }
+        if (!permissionDeniedList.isEmpty()) {
+            String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
+            ActivityCompat.requestPermissions(requireActivity(), deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
+        }
+    }
+
+    private void onPermissionGranted(String permission) {
+        switch (permission) {
+            case Manifest.permission.ACCESS_FINE_LOCATION:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkGPSIsOpen()) {
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.notifyTitle)
+                            .setMessage(R.string.gpsNotifyMsg)
+                            .setNegativeButton(R.string.cancel,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            requireActivity().finish();
+                                        }
+                                    })
+                            .setPositiveButton(R.string.setting,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                            startActivityForResult(intent, REQUEST_CODE_OPEN_GPS);
+                                        }
+                                    })
+
+                            .setCancelable(false)
+                            .show();
+                } else {
+                    setScanRule();
+                    startScan();
+                }
+                break;
+        }
+    }
+
+    private boolean checkGPSIsOpen() {
+        LocationManager locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null)
+            return false;
+        return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN_GPS) {
+            if (checkGPSIsOpen()) {
+                setScanRule();
+                startScan();
+            }
         }
     }
 }

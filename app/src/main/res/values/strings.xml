@@ -42,5 +42,21 @@
     <string name="service">service</string>
     <string name="mac">mac</string>
     <string name="input_hex">input_hex</string>
+    <string name="start_scan">start_scan</string>
+    <string name="stop_scan">stop_scan</string>
+    <string name="expand_search_settings">expand_search_settings</string>
+    <string name="retrieve_search_settings">retrieve_search_settings</string>
+    <string name="connect_fail">connect_fail</string>
+    <string name="active_disconnected">active_disconnected</string>
+    <string name="disconnected">disconnected</string>
+    <string name="please_open_blue">please_open_blue</string>
+    <string name="setting">setting</string>
+    <string name="scan_setting">scan_setting</string>
+    <string name="setting_name">setting_name</string>
+    <string name="setting_mac">setting_mac</string>
+    <string name="setting_uuid">setting_uuid</string>
+    <string name="notifyTitle">notifyTitle</string>
+    <string name="gpsNotifyMsg">gpsNotifyMsg</string>
+    <string name="cancel">cancel</string>
 
 </resources>
