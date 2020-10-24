@@ -5,15 +5,15 @@
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
     android:orientation="vertical">
-<!--
-    <android.support.v7.widget.Toolbar
+
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:title="@string/app_name"
         app:titleTextColor="@android:color/white" />
--->
+
     <LinearLayout
         android:id="@+id/layout_setting"
         android:layout_width="match_parent"
