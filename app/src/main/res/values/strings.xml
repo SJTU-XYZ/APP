@@ -58,5 +58,7 @@
     <string name="notifyTitle">notifyTitle</string>
     <string name="gpsNotifyMsg">gpsNotifyMsg</string>
     <string name="cancel">cancel</string>
+    <string name="open_fragment_b">Control</string>
+    <string name="open_fragment_control">Control</string>
 
 </resources>

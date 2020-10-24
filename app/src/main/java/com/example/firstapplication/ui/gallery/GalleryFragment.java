@@ -47,6 +47,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,6 +75,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
+
 
 public class GalleryFragment extends Fragment {
 
@@ -95,6 +98,8 @@ public class GalleryFragment extends Fragment {
     private View view;
 
     private View.OnClickListener onClickListener;
+    private Button btn_goToControl;
+    private NavController navController;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,6 +110,7 @@ public class GalleryFragment extends Fragment {
                 .setReConnectCount(1, 5000)
                 .setConnectOverTime(20000)
                 .setOperateTimeout(5000);
+        navController = findNavController(this);
 
         onClickListener = new View.OnClickListener() {
             @Override
@@ -127,10 +133,21 @@ public class GalleryFragment extends Fragment {
                             txt_setting.setText(getString(R.string.retrieve_search_settings));
                         }
                         break;
+                    case R.id.navigate_btn:
+                        navController.navigate(R.id.nav_slideshow);
+                        break;
                 }
             }
         };
+
         initView();
+        btn_goToControl.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   navController.navigate(R.id.nav_slideshow);
+               }
+           }
+        );
         return view;
     }
 
@@ -151,6 +168,7 @@ public class GalleryFragment extends Fragment {
     private void initView() {
         //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
+        btn_goToControl = (Button) view.findViewById(R.id.navigate_btn);
 
         btn_scan = (Button) view.findViewById(R.id.btn_scan);
         btn_scan.setText(getString(R.string.start_scan));
@@ -317,7 +335,7 @@ public class GalleryFragment extends Fragment {
                 mDeviceAdapter.notifyDataSetChanged();
 
                 if (isActiveDisConnected) {
-                    Toast.makeText(getContext(), getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getContext(), getString(R.string.active_disconnected), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), getString(R.string.disconnected), Toast.LENGTH_LONG).show();
                     ObserverManager.getInstance().notifyObserver(bleDevice);

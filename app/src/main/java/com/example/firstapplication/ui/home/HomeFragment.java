@@ -6,6 +6,8 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +46,8 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+
+import static android.content.ContentValues.TAG;
 
 public class HomeFragment extends Fragment {
     //private Activity activity;

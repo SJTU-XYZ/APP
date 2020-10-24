@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
 
 import com.example.firstapplication.R;
 import com.example.firstapplication.control.Appliance;
@@ -35,6 +36,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
+
 public class SlideshowFragment extends Fragment {
 
     private SlideshowViewModel slideshowViewModel;
@@ -45,17 +48,22 @@ public class SlideshowFragment extends Fragment {
     private ApplianceManager appManager;
     private View.OnClickListener onClickListener;
     private Button addBtn;
+    private Button btn_goToBluetooth;
     private Button startEmulate;// = findViewById(R.id.fab)
     private ListView listView;
 
     private int settingIndex;
     //private List<Appliance> appList = appManager.appliances;
 
+    private NavController navController;
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_slideshow, container, false);
         addBtn = view.findViewById(R.id.btn_add);
+        btn_goToBluetooth = view.findViewById(R.id.btn_goto_ble);
         startEmulate = view.findViewById(R.id.btn_start);
         appManager = new ApplianceManager(requireActivity());
+        navController = findNavController(this);
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -77,6 +85,13 @@ public class SlideshowFragment extends Fragment {
 
                 addDialog = new CreateAddAppDialog(getActivity(), R.style.AppTheme, onClickListener);
                 addDialog.show();
+            }
+        });
+
+        btn_goToBluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navController.navigate(R.id.nav_gallery);
             }
         });
 
