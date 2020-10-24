@@ -1,5 +1,7 @@
 package com.example.firstapplication;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -7,8 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 
+import com.example.firstapplication.blesample.operation.CharacteristicOperationFragment;
+import com.example.firstapplication.ui.gallery.GalleryFragment;
+import com.example.firstapplication.ui.slideshow.SlideshowFragment;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -18,7 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SlideshowFragment.BluetoothSend {
 
     private AppBarConfiguration mAppBarConfiguration;
     private FragmentManager fragmentManager;
@@ -57,5 +63,22 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if (fragment instanceof GalleryFragment) {
+            SlideshowFragment headlinesFragment = (SlideshowFragment) fragment;
+            headlinesFragment.setOnHeadlineSelectedListener(this);
+        }
+    }
+
+    @Override
+    public void send(String msg) {
+        CharacteristicOperationFragment bluetoothFragment = (CharacteristicOperationFragment)fragmentManager.findFragmentById(R.id.nav_cha_operation);
+        if(bluetoothFragment != null) {
+            bluetoothFragment.writeData(msg);
+        }
     }
 }

@@ -1,24 +1,18 @@
 package com.example.firstapplication.ui.gallery;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Application;
+
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,51 +22,42 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleMtuChangedCallback;
 import com.clj.fastble.callback.BleRssiCallback;
 import com.clj.fastble.callback.BleScanCallback;
+import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.scan.BleScanRuleConfig;
+import com.clj.fastble.utils.HexUtil;
 import com.example.firstapplication.MainActivity;
 import com.example.firstapplication.R;
 import com.example.firstapplication.blesample.adapter.DeviceAdapter;
 import com.example.firstapplication.blesample.comm.ObserverManager;
+import com.example.firstapplication.blesample.operation.CharacteristicOperationFragment;
 import com.example.firstapplication.blesample.operation.OperationActivity;
-import com.example.firstapplication.bluetooth.DeviceListAdapter;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 import static androidx.navigation.fragment.NavHostFragment.findNavController;
@@ -100,6 +85,8 @@ public class GalleryFragment extends Fragment {
     private View.OnClickListener onClickListener;
     private Button btn_goToControl;
     private NavController navController;
+
+    private int sendMsg;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -463,5 +450,8 @@ public class GalleryFragment extends Fragment {
                 startScan();
             }
         }
+    }
+
+    public void UpdateSendMsg(String msg) {
     }
 }

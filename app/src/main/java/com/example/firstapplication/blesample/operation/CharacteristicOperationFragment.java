@@ -41,6 +41,11 @@ public class CharacteristicOperationFragment extends Fragment {
     private LinearLayout layout_container;
     private List<String> childList = new ArrayList<>();
 
+    private BleDevice bleDevice;
+    private BluetoothGattCharacteristic characteristic;
+    private int charaProp;
+    private String child;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_characteric_operation, null);
@@ -53,10 +58,10 @@ public class CharacteristicOperationFragment extends Fragment {
     }
 
     public void showData() {
-        final BleDevice bleDevice = ((OperationActivity) getActivity()).getBleDevice();
-        final BluetoothGattCharacteristic characteristic = ((OperationActivity) getActivity()).getCharacteristic();
-        final int charaProp = ((OperationActivity) getActivity()).getCharaProp();
-        String child = characteristic.getUuid().toString() + String.valueOf(charaProp);
+        bleDevice = ((OperationActivity) getActivity()).getBleDevice();
+        characteristic = ((OperationActivity) getActivity()).getCharacteristic();
+        charaProp = ((OperationActivity) getActivity()).getCharaProp();
+        child = characteristic.getUuid().toString() + String.valueOf(charaProp);
 
         for (int i = 0; i < layout_container.getChildCount(); i++) {
             layout_container.getChildAt(i).setVisibility(View.GONE);
@@ -282,6 +287,36 @@ public class CharacteristicOperationFragment extends Fragment {
 
             layout_container.addView(view);
         }
+    }
+
+    public void writeData(String msg) {
+        BleManager.getInstance().write(
+                bleDevice,
+                characteristic.getService().getUuid().toString(),
+                characteristic.getUuid().toString(),
+                HexUtil.hexStringToBytes(msg),
+                new BleWriteCallback() {
+
+                    @Override
+                    public void onWriteSuccess(final int current, final int total, final byte[] justWrite) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onWriteFailure(final BleException exception) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+                });
     }
 
     private void runOnUiThread(Runnable runnable) {

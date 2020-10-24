@@ -57,6 +57,18 @@ public class SlideshowFragment extends Fragment {
 
     private NavController navController;
 
+    BluetoothSend callback;
+    private String sendMsgStr = "1010101";
+    private int sendMsg = Integer.valueOf(sendMsgStr, 2);
+
+    public void setOnHeadlineSelectedListener(BluetoothSend callback) {
+        this.callback = callback;
+    }
+
+    public interface BluetoothSend {
+        public void send(String msg);
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_slideshow, container, false);
         addBtn = view.findViewById(R.id.btn_add);
@@ -161,6 +173,7 @@ public class SlideshowFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 appManager.StartEmulate();
+                callback.send(sendMsgStr);
             }
         });
         return view;
