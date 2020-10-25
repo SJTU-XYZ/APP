@@ -32,6 +32,7 @@ import com.clj.fastble.utils.HexUtil;
 import com.example.firstapplication.R;
 import com.example.firstapplication.control.Appliance;
 import com.example.firstapplication.control.ApplianceManager;
+import com.example.firstapplication.control.ApplianceType;
 import com.example.firstapplication.control.Mode_e;
 import com.example.firstapplication.control.MyAdapter;
 import com.example.firstapplication.ui.slideshow.CreateAddAppDialog;
@@ -40,6 +41,8 @@ import com.example.firstapplication.ui.slideshow.ShowAppDialog;
 import com.example.firstapplication.ui.slideshow.SlideshowFragment;
 import com.example.firstapplication.ui.slideshow.SlideshowViewModel;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +65,8 @@ public class CharacteristicOperationFragment extends Fragment {
     private int charaProp;
     private String child;
 
+
+
     private SlideshowViewModel slideshowViewModel;
     private EditText inputAppliance;
     private CreateAddAppDialog addDialog;
@@ -75,12 +80,8 @@ public class CharacteristicOperationFragment extends Fragment {
     private ListView listView;
 
     private int settingIndex;
-    //private List<Appliance> appList = appManager.appliances;
-
-    private NavController navController;
-
-    private String sendMsgStr = "10";
-    private int sendMsg = Integer.valueOf(sendMsgStr, 2);
+    private InputStream inputStream;
+    private String sendMsgBinaryStr = "10";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -100,8 +101,20 @@ public class CharacteristicOperationFragment extends Fragment {
                             String name = addDialog.text_name.getText().toString().trim();
                             String power = addDialog.text_power.getText().toString().trim();
                             Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
-                            appManager.Add(app);
-                            if(addDialog.text_name != null && addDialog.text_power != null) {
+
+                            Appliance app1 = new Appliance("a", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
+                            Appliance app2 = new Appliance("b", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
+                            Appliance app3 = new Appliance("c", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
+                            Appliance app4 = new Appliance("d", 1000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+                            Appliance app5 = new Appliance("e", 1000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+
+                            appManager.Add(app1);
+                            appManager.Add(app2);
+                            appManager.Add(app3);
+                            appManager.Add(app4);
+                            appManager.Add(app5);
+
+                            if (addDialog.text_name != null && addDialog.text_power != null) {
                                 addDialog.cancel();
                             }
                         }
@@ -179,7 +192,7 @@ public class CharacteristicOperationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 appManager.StartEmulate();
-                writeData(sendMsgStr);
+                writeData(appManager.SendMsg());
             }
         });
 
@@ -297,7 +310,7 @@ public class CharacteristicOperationFragment extends Fragment {
                                     });
                         }
                     });
-                    layout_add.addView(view_add);
+                    //layout_add.addView(view_add);
                 }
                 break;
 
@@ -428,6 +441,36 @@ public class CharacteristicOperationFragment extends Fragment {
                 characteristic.getService().getUuid().toString(),
                 characteristic.getUuid().toString(),
                 HexUtil.hexStringToBytes(msg),
+                new BleWriteCallback() {
+
+                    @Override
+                    public void onWriteSuccess(final int current, final int total, final byte[] justWrite) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onWriteFailure(final BleException exception) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+                });
+    }
+
+    public void writeData(byte[] msg) {
+        BleManager.getInstance().write(
+                bleDevice,
+                characteristic.getService().getUuid().toString(),
+                characteristic.getUuid().toString(),
+                msg,
                 new BleWriteCallback() {
 
                     @Override

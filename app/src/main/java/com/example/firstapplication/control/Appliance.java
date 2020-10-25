@@ -14,6 +14,7 @@ public class Appliance {
         this.power = power;
         this.type = type;
         this.mode = mode;
+        this.autoState = AutoState_e.AUTO_OFF;
         powerConsumption = 0;
     }
 
