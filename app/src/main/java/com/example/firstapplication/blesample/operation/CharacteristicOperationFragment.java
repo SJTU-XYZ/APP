@@ -2,6 +2,7 @@ package com.example.firstapplication.blesample.operation;
 
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -9,12 +10,16 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleIndicateCallback;
@@ -25,9 +30,20 @@ import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.utils.HexUtil;
 import com.example.firstapplication.R;
+import com.example.firstapplication.control.Appliance;
+import com.example.firstapplication.control.ApplianceManager;
+import com.example.firstapplication.control.Mode_e;
+import com.example.firstapplication.control.MyAdapter;
+import com.example.firstapplication.ui.slideshow.CreateAddAppDialog;
+import com.example.firstapplication.ui.slideshow.SettingAppDialog;
+import com.example.firstapplication.ui.slideshow.ShowAppDialog;
+import com.example.firstapplication.ui.slideshow.SlideshowFragment;
+import com.example.firstapplication.ui.slideshow.SlideshowViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static androidx.navigation.fragment.NavHostFragment.findNavController;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class CharacteristicOperationFragment extends Fragment {
@@ -46,11 +62,128 @@ public class CharacteristicOperationFragment extends Fragment {
     private int charaProp;
     private String child;
 
+    private SlideshowViewModel slideshowViewModel;
+    private EditText inputAppliance;
+    private CreateAddAppDialog addDialog;
+    private SettingAppDialog settingDialog;
+    private ShowAppDialog showAppDialog;
+    private ApplianceManager appManager;
+    private View.OnClickListener onClickListener;
+    private Button addBtn;
+    private Button btn_goToBluetooth;
+    private Button startEmulate;// = findViewById(R.id.fab)
+    private ListView listView;
+
+    private int settingIndex;
+    //private List<Appliance> appList = appManager.appliances;
+
+    private NavController navController;
+
+    private String sendMsgStr = "10";
+    private int sendMsg = Integer.valueOf(sendMsgStr, 2);
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_characteric_operation, null);
-        initView(v);
-        return v;
+        View view = inflater.inflate(R.layout.fragment_characteric_operation, null);
+        initView(view);
+        addBtn = view.findViewById(R.id.btn_add);
+        startEmulate = view.findViewById(R.id.btn_start);
+        appManager = new ApplianceManager(requireActivity());
+
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_save) {
+                            String name = addDialog.text_name.getText().toString().trim();
+                            String power = addDialog.text_power.getText().toString().trim();
+                            Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
+                            appManager.Add(app);
+                            if(addDialog.text_name != null && addDialog.text_power != null) {
+                                addDialog.cancel();
+                            }
+                        }
+                    }
+                };
+
+                addDialog = new CreateAddAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                addDialog.show();
+            }
+        });
+
+        this.listView = (ListView) view.findViewById(R.id.listView);
+        final MyAdapter adapter = new MyAdapter(getContext(), appManager.appliances);
+        listView.setAdapter(adapter);
+        //ListView item的点击事件
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getContext(), "Click item" + i, Toast.LENGTH_SHORT).show();
+                // TODO
+                //showAppDialog.appStatus.setText(appManager.appliances.get(i).GetName());
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_app_show_cancel) {
+                            showAppDialog.cancel();
+                        }
+                    }
+                };
+                showAppDialog = new ShowAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                showAppDialog.show();
+            }
+        });
+        //ListView item 中的删除按钮的点击事件
+        adapter.setOnItemDeleteClickListener(new MyAdapter.onItemDeleteListener() {
+            @Override
+            public void onDeleteClick(int i) {
+                appManager.appliances.remove(i);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        adapter.setOnItemSettingClickListener(new MyAdapter.onItemSettingListener() {
+            @Override
+            public void onSettingClick(int i) {
+                settingIndex = i;
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_mode_save) {
+                            appManager.appliances.get(settingIndex).mode = settingDialog.mode;
+                            switch (settingDialog.mode) {
+                                case AUTO:
+                                    adapter.SetTextColor(Color.BLUE);
+                                    break;
+                                case AlwaysON:
+                                    adapter.SetTextColor(Color.GREEN);
+                                    break;
+                                case AlwaysOFF:
+                                    adapter.SetTextColor(Color.GRAY);
+                                    break;
+                            }
+
+                            settingDialog.cancel();
+                        }
+                    }
+                };
+
+                settingDialog = new SettingAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                settingDialog.show();
+            }
+        });
+
+        startEmulate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appManager.StartEmulate();
+                writeData(sendMsgStr);
+            }
+        });
+
+        return view;
     }
 
     private void initView(View v) {

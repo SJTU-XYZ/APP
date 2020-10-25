@@ -24,7 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements SlideshowFragment.BluetoothSend {
+public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private FragmentManager fragmentManager;
@@ -63,22 +63,5 @@ public class MainActivity extends AppCompatActivity implements SlideshowFragment
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
-    }
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-        if (fragment instanceof GalleryFragment) {
-            SlideshowFragment headlinesFragment = (SlideshowFragment) fragment;
-            headlinesFragment.setOnHeadlineSelectedListener(this);
-        }
-    }
-
-    @Override
-    public void send(String msg) {
-        CharacteristicOperationFragment bluetoothFragment = (CharacteristicOperationFragment)fragmentManager.findFragmentById(R.id.nav_cha_operation);
-        if(bluetoothFragment != null) {
-            bluetoothFragment.writeData(msg);
-        }
     }
 }
