@@ -1,6 +1,5 @@
 package com.example.firstapplication.ui.slideshow;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -8,31 +7,30 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.firstapplication.R;
 import com.example.firstapplication.control.Mode_e;
 
-public class ShowAppDialog extends Dialog {
+public class EmulateFinishDialog extends Dialog {
     Activity context;
 
     private Button btn_cancel;
 
-    public Mode_e mode;
+    private float fee;
+    private float PVGeneration;
     private View.OnClickListener mClickListener;
 
-    public TextView appStatus = null;
+    public TextView textFee = null;
+    public TextView textPV = null;
 
-    public ShowAppDialog(Activity context) {
+    public EmulateFinishDialog(Activity context) {
         super(context);
         this.context = context;
     }
 
-    public ShowAppDialog(Activity context, int theme, View.OnClickListener clickListener) {
+    public EmulateFinishDialog(Activity context, int theme, View.OnClickListener clickListener) {
         super(context, theme);
         this.context = context;
         this.mClickListener = clickListener;
@@ -42,11 +40,7 @@ public class ShowAppDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 指定布局
-        this.setContentView(R.layout.show_appliance);
-        /*
-         * 获取圣诞框的窗口对象及参数对象以修改对话框的布局设置, 可以直接调用getWindow(),表示获得这个Activity的Window
-         * 对象,这样这可以以同样的方式改变这个Activity的属性.
-         */
+        this.setContentView(R.layout.dialog_emulate_finish);
         Window dialogWindow = this.getWindow();
 
         WindowManager m = context.getWindowManager();
@@ -57,12 +51,19 @@ public class ShowAppDialog extends Dialog {
         dialogWindow.setAttributes(p);
 
         // 根据id在布局中找到控件对象
-        btn_cancel = (Button) findViewById(R.id.btn_app_show_cancel);
+        btn_cancel = (Button) findViewById(R.id.btn_finish_cancel);
 
         // 为按钮绑定点击事件监听器
         btn_cancel.setOnClickListener(mClickListener);
 
-        //appStatus = findViewById(R.id.text_app_status);
+        textFee = (TextView) findViewById(R.id.text_fee);
+        textPV = (TextView) findViewById(R.id.text_PV);
+
         this.setCancelable(true);
+    }
+
+    public void SetText(float fee, float PVGeneration) {
+        textFee.setText("Fee ￥" + String.valueOf(fee));
+        textPV.setText("PV " + String.valueOf(PVGeneration) + "kWh");
     }
 }

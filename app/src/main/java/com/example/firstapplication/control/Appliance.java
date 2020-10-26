@@ -42,7 +42,5 @@ public class Appliance {
                 }
                 break;
         }
-
-        //if (state == State_e.ON) powerConsumption += power;
     }
 }

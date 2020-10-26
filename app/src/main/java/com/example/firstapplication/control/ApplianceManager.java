@@ -47,6 +47,10 @@ public class ApplianceManager {
 
     private List<State_e> states;
 
+    public float GetFee() {return feeSum;}
+
+    public float GetPVGeneration() {return PVGeneration;}
+
     public ApplianceManager(Activity activity) {
         appliances = new ArrayList<>();
         PVData = new ArrayList<>();
@@ -107,13 +111,11 @@ public class ApplianceManager {
     }
 
     public void Emulate(int hour) {
-        //for (hour = 0; hour < hours; hour++) {
-
         PowerSum();
         PVGeneration += PVData.get(hour);
         if (PVGeneration - powerSum < 0) {
             for (int i = 0; i < appliances.size(); i++) {
-                if (feeData.get(hour) >= feeThreshold && appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
+                if (feeData.get(hour) > feeThreshold && appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
                     appliances.get(i).autoState = AutoState_e.AUTO_OFF;
                 } else {
                     appliances.get(i).autoState = AutoState_e.AUTO_ON;
@@ -125,8 +127,6 @@ public class ApplianceManager {
         PowerSum();
         PVGeneration -= powerSum;
         if (PVData.get(hour) - powerSum < 0)
-            feeSum += (powerSum - PVData.get(hour)) * feeData.get(hour) / 1000.0f;
-
-        //}
+            feeSum += (powerSum - PVData.get(hour)) * feeData.get(hour);
     }
 }

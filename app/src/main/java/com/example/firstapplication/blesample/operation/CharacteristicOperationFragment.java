@@ -36,6 +36,7 @@ import com.example.firstapplication.control.ApplianceType;
 import com.example.firstapplication.control.Mode_e;
 import com.example.firstapplication.control.MyAdapter;
 import com.example.firstapplication.ui.slideshow.CreateAddAppDialog;
+import com.example.firstapplication.ui.slideshow.EmulateFinishDialog;
 import com.example.firstapplication.ui.slideshow.SettingAppDialog;
 import com.example.firstapplication.ui.slideshow.ShowAppDialog;
 import com.example.firstapplication.ui.slideshow.SlideshowFragment;
@@ -66,18 +67,19 @@ public class CharacteristicOperationFragment extends Fragment {
     private String child;
 
 
-
     private SlideshowViewModel slideshowViewModel;
     private EditText inputAppliance;
     private CreateAddAppDialog addDialog;
     private SettingAppDialog settingDialog;
     private ShowAppDialog showAppDialog;
+    private EmulateFinishDialog emulateFinishDialog;
     private ApplianceManager appManager;
     private View.OnClickListener onClickListener;
     private Button addBtn;
     private Button btn_goToBluetooth;
     private Button startEmulate;// = findViewById(R.id.fab)
     private ListView listView;
+    private int hour = 0;
 
     private int settingIndex;
 
@@ -100,11 +102,17 @@ public class CharacteristicOperationFragment extends Fragment {
                             String power = addDialog.text_power.getText().toString().trim();
                             Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
 
-                            Appliance app1 = new Appliance("Yuba", 1000.0f, ApplianceType.Necessary, Mode_e.AlwaysOFF);
-                            Appliance app2 = new Appliance("Refrigerator", 2000.0f, ApplianceType.Necessary, Mode_e.AlwaysON);
-                            Appliance app3 = new Appliance("Fountain", 2000.0f, ApplianceType.Necessary, Mode_e.AUTO);
-                            Appliance app4 = new Appliance("Lantern", 1500.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
-                            Appliance app5 = new Appliance("High voltage", 4000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+                            Appliance app1 = new Appliance("Yuba", 1.0f, ApplianceType.Necessary, Mode_e.AlwaysOFF);
+                            Appliance app2 = new Appliance("Refrigerator", 2.0f, ApplianceType.Necessary, Mode_e.AlwaysON);
+                            Appliance app3 = new Appliance("Fountain", 2.0f, ApplianceType.Necessary, Mode_e.AUTO);
+                            Appliance app4 = new Appliance("Lantern", 1.5f, ApplianceType.Unnecessary, Mode_e.AUTO);
+                            Appliance app5 = new Appliance("High voltage", 4.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+
+                            app1.StateSwitch();
+                            app2.StateSwitch();
+                            app3.StateSwitch();
+                            app4.StateSwitch();
+                            app5.StateSwitch();
 
                             appManager.Add(app1);
                             appManager.Add(app2);
@@ -164,18 +172,6 @@ public class CharacteristicOperationFragment extends Fragment {
                     public void onClick(View v) {
                         if (v.getId() == R.id.btn_mode_save) {
                             appManager.appliances.get(settingIndex).mode = settingDialog.mode;
-                            switch (settingDialog.mode) {
-                                case AUTO:
-                                    adapter.SetTextColor(Color.BLUE);
-                                    break;
-                                case AlwaysON:
-                                    adapter.SetTextColor(Color.GREEN);
-                                    break;
-                                case AlwaysOFF:
-                                    adapter.SetTextColor(Color.GRAY);
-                                    break;
-                            }
-
                             settingDialog.cancel();
                         }
                     }
@@ -189,10 +185,23 @@ public class CharacteristicOperationFragment extends Fragment {
         startEmulate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (int hour = 0; hour < 24; hour++) {
-                    appManager.Emulate(hour);
-                    writeData(appManager.SendMsg());
+                appManager.Emulate(hour);
+                writeData(appManager.SendMsg());
+                adapter.notifyDataSetChanged();
+                hour = (hour + 1) % 24;
+                if (hour == 23) {
+                    emulateFinishDialog = new EmulateFinishDialog(getActivity(), R.style.AppTheme, onClickListener);
+                    emulateFinishDialog.show();
+                    emulateFinishDialog.SetText(appManager.GetFee(), appManager.GetPVGeneration());
                 }
+                onClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getId() == R.id.btn_finish_cancel) {
+                            emulateFinishDialog.cancel();
+                        }
+                    }
+                };
             }
         });
 

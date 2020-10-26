@@ -1,6 +1,7 @@
 package com.example.firstapplication.control;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,8 @@ import java.util.List;
 
 public class MyAdapter extends BaseAdapter {
     private Context mContext;
-    private List<Appliance> mList = new ArrayList<>();
-    ViewHolder viewHolder = null;
+    public List<Appliance> mList = new ArrayList<>();
+    public ViewHolder viewHolder = null;
 
     public MyAdapter(Context context, List<Appliance> list) {
         mContext = context;
@@ -45,7 +46,7 @@ public class MyAdapter extends BaseAdapter {
             view = LayoutInflater.from(mContext).inflate(R.layout.list_item, null);
             viewHolder.mTextView = (TextView) view.findViewById(R.id.item_tv);
             viewHolder.btnDelete = (Button) view.findViewById(R.id.delete_btn);
-            viewHolder.btnSetting= (Button) view.findViewById(R.id.setting_btn);
+            viewHolder.btnSetting = (Button) view.findViewById(R.id.setting_btn);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -64,6 +65,14 @@ public class MyAdapter extends BaseAdapter {
                 mOnItemSettingListener.onSettingClick(i);
             }
         });
+        switch (mList.get(i).state) {
+            case ON:
+                viewHolder.mTextView.setTextColor(Color.RED);
+                break;
+            case OFF:
+                viewHolder.mTextView.setTextColor(Color.GRAY);
+                break;
+        }
         return view;
     }
 
@@ -92,15 +101,10 @@ public class MyAdapter extends BaseAdapter {
     }
 
 
-    class ViewHolder {
-        TextView mTextView;
+    public class ViewHolder {
+        public TextView mTextView;
         Button btnDelete;
         Button btnSetting;
         int textColor;
-    }
-
-    public void SetTextColor(int color) {
-        viewHolder.textColor = color;
-        viewHolder.mTextView.setTextColor(viewHolder.textColor);
     }
 }
