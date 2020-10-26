@@ -84,7 +84,6 @@ public class GalleryFragment extends Fragment {
 
     private View.OnClickListener onClickListener;
     private Button btn_goToControl;
-    private NavController navController;
 
     private int sendMsg;
 
@@ -97,7 +96,6 @@ public class GalleryFragment extends Fragment {
                 .setReConnectCount(1, 5000)
                 .setConnectOverTime(20000)
                 .setOperateTimeout(5000);
-        navController = findNavController(this);
 
         onClickListener = new View.OnClickListener() {
             @Override
@@ -120,21 +118,11 @@ public class GalleryFragment extends Fragment {
                             txt_setting.setText(getString(R.string.retrieve_search_settings));
                         }
                         break;
-                    case R.id.navigate_btn:
-                        navController.navigate(R.id.nav_slideshow);
-                        break;
                 }
             }
         };
 
         initView();
-        btn_goToControl.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   navController.navigate(R.id.nav_slideshow);
-               }
-           }
-        );
         return view;
     }
 
@@ -155,7 +143,6 @@ public class GalleryFragment extends Fragment {
     private void initView() {
         //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
-        btn_goToControl = (Button) view.findViewById(R.id.navigate_btn);
 
         btn_scan = (Button) view.findViewById(R.id.btn_scan);
         btn_scan.setText(getString(R.string.start_scan));

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,28 +13,35 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-    <Button
-        android:id="@+id/btn_start"
-        android:layout_width="119dp"
-        android:layout_height="64dp"
-        android:layout_marginLeft="220dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/start"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        tools:ignore="MissingConstraints" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-    <Button
-        android:id="@+id/btn_add"
-        android:layout_width="182dp"
-        android:layout_height="64dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/add_appliance"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        tools:ignore="MissingConstraints" />
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="119dp"
+            android:layout_height="64dp"
+            android:layout_marginLeft="220dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:ignore="MissingConstraints" />
 
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="182dp"
+            android:layout_height="64dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/add_appliance"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            tools:ignore="MissingConstraints" />
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/listView"

@@ -127,7 +127,7 @@ public class CharacteristicOperationFragment extends Fragment {
                     }
                 };
 
-                addDialog = new CreateAddAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                addDialog = new CreateAddAppDialog(getActivity(), R.style.MyDialogTheme, onClickListener);
                 addDialog.show();
             }
         });
@@ -150,7 +150,7 @@ public class CharacteristicOperationFragment extends Fragment {
                         }
                     }
                 };
-                showAppDialog = new ShowAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                showAppDialog = new ShowAppDialog(getActivity(), R.style.MyDialogTheme, onClickListener);
                 showAppDialog.show();
             }
         });
@@ -177,7 +177,7 @@ public class CharacteristicOperationFragment extends Fragment {
                     }
                 };
 
-                settingDialog = new SettingAppDialog(getActivity(), R.style.AppTheme, onClickListener);
+                settingDialog = new SettingAppDialog(getActivity(), R.style.MyDialogTheme, onClickListener);
                 settingDialog.show();
             }
         });
@@ -190,7 +190,7 @@ public class CharacteristicOperationFragment extends Fragment {
                 adapter.notifyDataSetChanged();
                 hour = (hour + 1) % 24;
                 if (hour == 23) {
-                    emulateFinishDialog = new EmulateFinishDialog(getActivity(), R.style.AppTheme, onClickListener);
+                    emulateFinishDialog = new EmulateFinishDialog(getActivity(), R.style.MyDialogTheme, onClickListener);
                     emulateFinishDialog.show();
                     emulateFinishDialog.SetText(appManager.GetFee(), appManager.GetPVGeneration());
                 }
