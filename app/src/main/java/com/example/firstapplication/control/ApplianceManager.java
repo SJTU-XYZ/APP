@@ -14,6 +14,16 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+/**
+ * 浴霸 OFF 1000
+ * 冰箱 ON 2000
+ * 喷泉 2000
+ * 彩灯 1500
+ * 高压电 4000
+ */
 
 public class ApplianceManager {
     private float feeSum;
@@ -27,6 +37,7 @@ public class ApplianceManager {
     private List<Float> feeData;
 
     private int hours;
+    private int hour;
     private float powerSum;
     private final float feeThreshold = 0.656f;
 
@@ -34,13 +45,16 @@ public class ApplianceManager {
     private String sendMsgStr;
     private int sendMsgInt;
 
+    private List<State_e> states;
+
     public ApplianceManager(Activity activity) {
         appliances = new ArrayList<>();
         PVData = new ArrayList<>();
         feeData = new ArrayList<>();
+        states = new ArrayList<>();
         try {
-            PVChart = new Chart(activity.getAssets().open("final.xls"));
-            feeChart = new Chart(activity.getAssets().open("final.xls"));
+            PVChart = new Chart(activity.getAssets().open("typical.xls"));
+            feeChart = new Chart(activity.getAssets().open("typical.xls"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -66,14 +80,18 @@ public class ApplianceManager {
     }
 
     private void PowerSum() {
+        powerSum = 0;
         for (int i = 0; i < appliances.size(); i++) {
             if (appliances.get(i).state == State_e.ON) {
-                powerSum += appliances.get(i).GetPowConsumption();
+                powerSum += appliances.get(i).power;
             }
         }
     }
 
     public String SendMsg() {
+        for (int i = 0; i < appliances.size(); i++) {
+            appliances.get(i).StateSwitch();
+        }
         sendMsgInt = 0;
         for (int i = 0; i < appliances.size(); i++) {
             if (appliances.get(i).state == State_e.ON) {
@@ -88,28 +106,27 @@ public class ApplianceManager {
         return sendMsgStr;
     }
 
-    public void StartEmulate() {
-        for (int hour = 0; hour < hours; hour++) {
-            PowerSum();
-            PVGeneration += PVData.get(hour);
-            if (PVGeneration - powerSum < 0) {
-                for (int i = 0; i < appliances.size(); i++) {
-                    if (appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
-                        appliances.get(i).autoState = AutoState_e.AUTO_OFF;
-                    }
-                    appliances.get(i).StateSwitch();
+    public void Emulate(int hour) {
+        //for (hour = 0; hour < hours; hour++) {
+
+        PowerSum();
+        PVGeneration += PVData.get(hour);
+        if (PVGeneration - powerSum < 0) {
+            for (int i = 0; i < appliances.size(); i++) {
+                if (feeData.get(hour) >= feeThreshold && appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
+                    appliances.get(i).autoState = AutoState_e.AUTO_OFF;
+                } else {
+                    appliances.get(i).autoState = AutoState_e.AUTO_ON;
                 }
-            } else {
-                for (int i = 0; i < appliances.size(); i++) {
-                    if (feeData.get(hour) >= feeThreshold && appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
-                        appliances.get(i).autoState = AutoState_e.AUTO_OFF;
-                    }
-                    appliances.get(i).StateSwitch();
-                }
+                appliances.get(i).StateSwitch();
             }
-            PowerSum();
-            PVGeneration -= powerSum;
-            if (PVGeneration < 0) feeSum += (-PVGeneration) * feeData.get(hour);
+        } else {
         }
+        PowerSum();
+        PVGeneration -= powerSum;
+        if (PVData.get(hour) - powerSum < 0)
+            feeSum += (powerSum - PVData.get(hour)) * feeData.get(hour) / 1000.0f;
+
+        //}
     }
 }

@@ -1,5 +1,4 @@
 include ':FastBleLib'
-include ':bluetools'
 include ':MPChartLib'
 include ':app'
 rootProject.name = "FirstApplication"

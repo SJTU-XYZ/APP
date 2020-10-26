@@ -80,8 +80,6 @@ public class CharacteristicOperationFragment extends Fragment {
     private ListView listView;
 
     private int settingIndex;
-    private InputStream inputStream;
-    private String sendMsgBinaryStr = "10";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,11 +100,11 @@ public class CharacteristicOperationFragment extends Fragment {
                             String power = addDialog.text_power.getText().toString().trim();
                             Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
 
-                            Appliance app1 = new Appliance("a", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
-                            Appliance app2 = new Appliance("b", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
-                            Appliance app3 = new Appliance("c", 1000.0f, ApplianceType.Necessary, Mode_e.AUTO);
-                            Appliance app4 = new Appliance("d", 1000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
-                            Appliance app5 = new Appliance("e", 1000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+                            Appliance app1 = new Appliance("Yuba", 1000.0f, ApplianceType.Necessary, Mode_e.AlwaysOFF);
+                            Appliance app2 = new Appliance("Refrigerator", 2000.0f, ApplianceType.Necessary, Mode_e.AlwaysON);
+                            Appliance app3 = new Appliance("Fountain", 2000.0f, ApplianceType.Necessary, Mode_e.AUTO);
+                            Appliance app4 = new Appliance("Lantern", 1500.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
+                            Appliance app5 = new Appliance("High voltage", 4000.0f, ApplianceType.Unnecessary, Mode_e.AUTO);
 
                             appManager.Add(app1);
                             appManager.Add(app2);
@@ -191,8 +189,10 @@ public class CharacteristicOperationFragment extends Fragment {
         startEmulate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                appManager.StartEmulate();
-                writeData(appManager.SendMsg());
+                for (int hour = 0; hour < 24; hour++) {
+                    appManager.Emulate(hour);
+                    writeData(appManager.SendMsg());
+                }
             }
         });
 
@@ -508,6 +508,4 @@ public class CharacteristicOperationFragment extends Fragment {
             textView.scrollTo(0, offset - textView.getHeight());
         }
     }
-
-
 }
