@@ -64,6 +64,6 @@ public class EmulateFinishDialog extends Dialog {
 
     public void SetText(float fee, float PVGeneration) {
         textFee.setText("Fee ￥" + String.valueOf(fee));
-        textPV.setText("PV " + String.valueOf(PVGeneration) + "kWh");
+        textPV.setText("PowCons " + String.valueOf(PVGeneration) + "kWh");
     }
 }

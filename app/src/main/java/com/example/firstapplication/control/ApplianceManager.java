@@ -28,7 +28,7 @@ import java.util.TimerTask;
 public class ApplianceManager {
     private float feeSum;
     private float PVGeneration;
-    private float PowerConsumption;
+    private float powerConsumption;
     public List<Appliance> appliances;
 
     private Chart PVChart;
@@ -47,9 +47,17 @@ public class ApplianceManager {
 
     private List<State_e> states;
 
-    public float GetFee() {return feeSum;}
+    public float GetFee() {
+        return feeSum;
+    }
 
-    public float GetPVGeneration() {return PVGeneration;}
+    public float GetPVGeneration() {
+        return PVGeneration;
+    }
+
+    public float GetPowerConsumption() {
+        return powerConsumption;
+    }
 
     public ApplianceManager(Activity activity) {
         appliances = new ArrayList<>();
@@ -83,7 +91,17 @@ public class ApplianceManager {
         appliances.add(app);
     }
 
-    private void PowerSum() {
+    private void PredictedPowerSum() {
+        powerSum = 0;
+        for (int i = 0; i < appliances.size(); i++) {
+            if (appliances.get(i).state == State_e.ON
+                    || (appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary)) {
+                powerSum += appliances.get(i).power;
+            }
+        }
+    }
+
+    private void RealPowerSum() {
         powerSum = 0;
         for (int i = 0; i < appliances.size(); i++) {
             if (appliances.get(i).state == State_e.ON) {
@@ -111,9 +129,9 @@ public class ApplianceManager {
     }
 
     public void Emulate(int hour) {
-        PowerSum();
+        PredictedPowerSum();
         PVGeneration += PVData.get(hour);
-        if (PVGeneration - powerSum < 0) {
+        if (PVGeneration - powerConsumption - powerSum < 0) {
             for (int i = 0; i < appliances.size(); i++) {
                 if (feeData.get(hour) > feeThreshold && appliances.get(i).mode == Mode_e.AUTO && appliances.get(i).type == ApplianceType.Unnecessary) {
                     appliances.get(i).autoState = AutoState_e.AUTO_OFF;
@@ -124,8 +142,8 @@ public class ApplianceManager {
             }
         } else {
         }
-        PowerSum();
-        PVGeneration -= powerSum;
+        RealPowerSum();
+        powerConsumption += powerSum;
         if (PVData.get(hour) - powerSum < 0)
             feeSum += (powerSum - PVData.get(hour)) * feeData.get(hour);
     }

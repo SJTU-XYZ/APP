@@ -1,10 +1,10 @@
 ﻿# APP Structure
 
-## asserts
+## assets
 
-- final.xls: All data.
+- final.xls: all data
 
-- typical.xls: Typical day data.
+- typical.xls: typical day data
 
 ## java
 

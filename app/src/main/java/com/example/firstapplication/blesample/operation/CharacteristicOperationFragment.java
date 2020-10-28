@@ -192,7 +192,7 @@ public class CharacteristicOperationFragment extends Fragment {
                 if (hour == 23) {
                     emulateFinishDialog = new EmulateFinishDialog(getActivity(), R.style.MyDialogTheme, onClickListener);
                     emulateFinishDialog.show();
-                    emulateFinishDialog.SetText(appManager.GetFee(), appManager.GetPVGeneration());
+                    emulateFinishDialog.SetText(appManager.GetFee(), appManager.GetPowerConsumption());
                 }
                 onClickListener = new View.OnClickListener() {
                     @Override
