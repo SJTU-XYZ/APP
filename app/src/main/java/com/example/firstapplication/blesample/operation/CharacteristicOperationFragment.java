@@ -102,7 +102,7 @@ public class CharacteristicOperationFragment extends Fragment {
                             String power = addDialog.text_power.getText().toString().trim();
                             Appliance app = new Appliance(name, Float.parseFloat(power), addDialog.type, Mode_e.AUTO);
 
-                            Appliance app1 = new Appliance("Yuba", 1.0f, ApplianceType.Necessary, Mode_e.AlwaysOFF);
+                            Appliance app1 = new Appliance("Bath heater", 1.0f, ApplianceType.Necessary, Mode_e.AlwaysOFF);
                             Appliance app2 = new Appliance("Refrigerator", 2.0f, ApplianceType.Necessary, Mode_e.AlwaysON);
                             Appliance app3 = new Appliance("Fountain", 2.0f, ApplianceType.Necessary, Mode_e.AUTO);
                             Appliance app4 = new Appliance("Lantern", 1.5f, ApplianceType.Unnecessary, Mode_e.AUTO);
